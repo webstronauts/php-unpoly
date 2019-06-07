@@ -1,0 +1,41 @@
+{
+    "name": "webstronauts/unpoly",
+    "description": "Stack middleware for handling Javascript Unpoly Framework requests",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robin van der Vleuten",
+            "email": "robin@webstronauts.co",
+            "homepage": "https://webstronauts.co"
+        }
+    ],
+    "homepage" : "https://github.com/webstronauts/php-unpoly",
+    "autoload": {
+        "psr-4": {
+            "Webstronauts\\Unpoly\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Webstronauts\\Unpoly\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "php": "^7.1",
+        "symfony/http-foundation": "^3.4|^4.0",
+        "symfony/http-kernel": "^3.4|^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5",
+        "scrutinizer/ocular": "^1.5"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

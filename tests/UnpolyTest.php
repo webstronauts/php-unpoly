@@ -1,0 +1,46 @@
+<?php
+
+namespace Webstronauts\Unpoly\Tests;
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Webstronauts\Unpoly\Unpoly;
+
+class UnpolyTest extends TestCase
+{
+    public function testAppendsRequestHeadersToResponse()
+    {
+        $request = Request::create('/foo/bar', 'PUT');
+        $response = new Response();
+
+        (new Unpoly())->decorateResponse($request, $response);
+
+        $this->assertEquals('/foo/bar', $response->headers->get('X-Up-Location'));
+        $this->assertEquals('PUT', $response->headers->get('X-Up-Method'));
+    }
+
+    public function testAppendsRequestMethodCookieToResponse()
+    {
+        $request = Request::create('/foo/bar', 'PUT');
+
+        $response = new Response();
+        $response->headers->setCookie(new Cookie('foo', 'bar'));
+
+        (new Unpoly())->decorateResponse($request, $response);
+
+        $this->assertResponseHasCookie($response, '_up_method', 'PUT');
+    }
+
+    private function assertResponseHasCookie(Response $response, string $name, string $value)
+    {
+        $cookies = $response->headers->getCookies();
+
+        $filteredCookies = array_filter($cookies, function (Cookie $cookie) use ($name, $value) {
+            return $cookie->getName() === $name && $cookie->getValue() === $value;
+        });
+
+        $this->assertNotNull(reset($filteredCookies) ?: null);
+    }
+}
