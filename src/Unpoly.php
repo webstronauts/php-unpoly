@@ -63,7 +63,7 @@ class Unpoly
      * Unpoly requires this cookie to detect whether the initial page
      * load was requested using a non-GET method. In this case the Unpoly
      * framework will prevent itself from booting until it was loaded
-     * from a GET request. For the terrible reasons behind this see:
+     * from a GET request.
      *
      * @see https://github.com/rails/turbolinks/search?q=request_method&ref=cmdform
      * @see https://github.com/rails/turbolinks/blob/83d4b3d2c52a681f07900c28adb28bc8da604733/README.md#initialization

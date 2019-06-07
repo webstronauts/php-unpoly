@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/travis/com/webstronauts/php-unpoly/master.svg?style=flat-square)](https://travis-ci.com/webstronauts/php-unpoly)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/webstronauts/php-unpoly/master.svg?style=flat-square)](https://scrutinizer-ci.com/g/webstronauts/php-unpoly)
 [![Quality Score](https://img.shields.io/scrutinizer/g/webstronauts/php-unpoly.svg?style=flat-square)](https://scrutinizer-ci.com/g/webstronauts/php-unpoly)
-[![StyleCI](https://github.styleci.io/repos/188848621/shield?branch=master)](https://github.styleci.io/repos/188848621)
+[![StyleCI](https://github.styleci.io/repos/190603919/shield?branch=master)](https://github.styleci.io/repos/190603919)
 [![Total Downloads](https://img.shields.io/packagist/dt/webstronauts/unpoly.svg?style=flat-square)](https://packagist.org/packages/webstronauts/unpoly)
 
 Stack middleware for handling [Javascript Unpoly Framework](https://unpoly.com) requests.
