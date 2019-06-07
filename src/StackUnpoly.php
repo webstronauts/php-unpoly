@@ -23,7 +23,6 @@ class StackUnpoly implements HttpKernelInterface
      *
      * @param  \Symfony\Component\HttpKernel\HttpKernelInterface  $app
      * @param  \Webstronauts\Unpoly\Unpoly  $unpoly
-     * @return void
      */
     public function __construct(HttpKernelInterface $app, Unpoly $unpoly)
     {
