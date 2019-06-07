@@ -19,14 +19,30 @@ composer require webstronauts/unpoly
 
 ## Usage
 
-``` php
-// TODO
-```
-
-### Laravel
+You can manually decorate the response with the `Unpoly` object.
 
 ```php
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Webstronauts\Unpoly\Unpoly;
+
 // ...
+
+$unpoly = new Unpoly();
+$unpoly->decorateResponse($request, $response);
+```
+
+### Stack Middleware
+
+You can decorate the response using the supplied [Stack](http://stackphp.com) middleware.
+
+```php
+use Webstronauts\Unpoly\StackUnpoly;
+use Webstronauts\Unpoly\Unpoly;
+
+// ...
+
+$app = new StackUnpoly($app, new Unpoly());
 ```
 
 ### Testing
