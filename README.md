@@ -45,7 +45,69 @@ use Webstronauts\Unpoly\Unpoly;
 $app = new StackUnpoly($app, new Unpoly());
 ```
 
-### Testing
+### Laravel
+
+To use the package with Laravel, you'll have to wrap it around a middleware instance.
+
+```php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Webstronauts\Unpoly\Unpoly as UnpolyMiddleware;
+
+class Unpoly
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle($request, Closure $next)
+    {
+        $response = $next($request);
+
+        (new UnpolyMiddleware)->decorateResponse($request, $response);
+
+        return $response;
+    }
+}
+```
+
+Now use this middleware as described by the [Laravel documentation](https://laravel.com/docs/master/middleware).
+
+```php
+// Within App\Http\Kernel class...
+
+protected $routeMiddleware = [
+    // ...
+    'unpoly' => \App\Http\Middleware\Unpoly::class,
+];
+```
+
+#### Validation Errors
+
+Whenever a form is submitted through Unpoly, the response is returned as JSON by default. This is because Laravel returns JSON formatted response for any request with the header `X-Requested-With` set to `XMLHttpRequest`. To make sure the application returns an HTML response for any validation errors, overwrite the `convertValidationExceptionToResponse` method in your `App\Exceptions\Handler` class.
+
+```php
+// Within App\Exceptions\Handler class...
+
+protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+{
+    if ($e->response) {
+        return $e->response;
+    }
+
+    return $request->expectsJson() && ! $request->hasHeader('X-Up-Target')
+        ? $this->invalidJson($request, $e)
+        : $this->invalid($request, $e);
+}
+```
+
+## Testing
 
 ``` bash
 composer test
