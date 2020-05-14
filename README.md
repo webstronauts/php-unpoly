@@ -80,6 +80,8 @@ class Unpoly
 Now use this middleware as described by the [Laravel documentation](https://laravel.com/docs/master/middleware).
 
 ```php
+<?php
+
 // Within App\Http\Kernel class...
 
 protected $routeMiddleware = [
@@ -93,6 +95,8 @@ protected $routeMiddleware = [
 Whenever a form is submitted through Unpoly, the response is returned as JSON by default. This is because Laravel returns JSON formatted response for any request with the header `X-Requested-With` set to `XMLHttpRequest`. To make sure the application returns an HTML response for any validation errors, overwrite the `convertValidationExceptionToResponse` method in your `App\Exceptions\Handler` class.
 
 ```php
+<?php
+
 // Within App\Exceptions\Handler class...
 
 protected function convertValidationExceptionToResponse(ValidationException $e, $request)
