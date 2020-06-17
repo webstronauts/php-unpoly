@@ -12,12 +12,12 @@ class UnpolyTest extends TestCase
 {
     public function testAppendsRequestHeadersToResponse()
     {
-        $request = Request::create('/foo/bar', 'PUT');
+        $request = Request::create('/foo/bar?param=baz', 'PUT');
         $response = new Response();
 
         (new Unpoly())->decorateResponse($request, $response);
 
-        $this->assertEquals('/foo/bar', $response->headers->get('X-Up-Location'));
+        $this->assertEquals('http://localhost/foo/bar?param=baz', $response->headers->get('X-Up-Location'));
         $this->assertEquals('PUT', $response->headers->get('X-Up-Method'));
     }
 
