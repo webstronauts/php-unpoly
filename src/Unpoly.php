@@ -54,7 +54,7 @@ class Unpoly
     protected function echoRequestHeaders(Request $request, Response $response): void
     {
         $response->headers->add([
-            self::LOCATION_RESPONSE_HEADER => $request->getPathInfo(),
+            self::LOCATION_RESPONSE_HEADER => $request->getUri(),
             self::METHOD_RESPONSE_HEADER => $request->getMethod(),
         ]);
     }
