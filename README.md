@@ -9,6 +9,10 @@
 
 Stack middleware for handling [Javascript Unpoly Framework](https://unpoly.com) requests.
 
+<a href="https://webstronauts.com/">
+    <img src="https://webstronauts.com/badges/sponsored-by-webstronauts.svg" alt="Sponsored by The Webstronauts" width="200" height="65">
+</a>
+
 ## Installation
 
 You can install the package via [Composer](https://getcomposer.org).
