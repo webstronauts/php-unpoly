@@ -115,6 +115,51 @@ protected function convertValidationExceptionToResponse(ValidationException $e, 
 }
 ```
 
+#### Other HTTP Errors
+
+If your Laravel session expires and a user attempts to navigate or perform an operating on the page using Unpoly, a JSON error response will be returned:
+
+```
+{'error': 'Unauthenticated.'}
+```
+
+To prevent this, create your own `Request` and extend Laravel's built-in `Illuminate\Http\Request`, and override the `expectsJson` method:
+
+```php
+namespace App\Http;
+
+use Illuminate\Http\Request as BaseRequest;
+
+class Request extends BaseRequest
+{
+    public function expectsJson()
+    {
+        if ($this->hasHeader('X-Up-Target')) {
+            return false;
+        }
+
+        return parent::expectsJson();
+    }
+}
+```
+
+Then, navigate to your `public/index.php` file, and update the usage:
+
+
+```php
+// From...
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
+
+// To...
+$response = $kernel->handle(
+    $request = App\Http\Request::capture()
+);
+```
+
+Now when a user session expires, the `<body>` of your page will be replaced with your login page, allowing users to sign back in without refreshing the page.
+
 ## Testing
 
 ``` bash
