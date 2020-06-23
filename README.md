@@ -117,7 +117,7 @@ protected function convertValidationExceptionToResponse(ValidationException $e, 
 
 #### Other HTTP Errors
 
-If your Laravel session expires and a user attempts to navigate or perform an operating on the page using Unpoly, an abrubt JSON error response will be displayed to the user:
+If your Laravel session expires and a user attempts to navigate or perform an operating on the page using Unpoly, an abrupt JSON error response will be displayed to the user:
 
 ```
 {'error': 'Unauthenticated.'}
