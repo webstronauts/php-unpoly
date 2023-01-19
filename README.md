@@ -1,7 +1,7 @@
 # Unpoly
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/webstronauts/unpoly.svg?style=flat-square)](https://packagist.org/packages/webstronauts/unpoly)
-[![Build Status](https://img.shields.io/github/workflow/status/webstronauts/php-unpoly/run-tests.svg?style=flat-square)](https://github.com/webstronauts/php-unpoly/actions?query=workflow%3Arun-tests)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/webstronauts/php-unpoly/run-tests.yml?branch=main&style=flat-square)](https://github.com/webstronauts/php-unpoly/actions?query=workflow%3Arun-tests)
 [![StyleCI](https://github.styleci.io/repos/190603919/shield?branch=master)](https://github.styleci.io/repos/190603919)
 [![Total Downloads](https://img.shields.io/packagist/dt/webstronauts/unpoly.svg?style=flat-square)](https://packagist.org/packages/webstronauts/unpoly)
 
