@@ -10,6 +10,62 @@ use Webstronauts\Unpoly\Unpoly;
 
 class UnpolyTest extends TestCase
 {
+    public function testChecksIfUnpolyRequestBasedOnVersion()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Version', '2.0.0');
+
+        $this->assertTrue(Unpoly::isUnpolyRequest($request));
+    }
+
+    public function testChecksIfUnpolyRequestBasedOnTarget()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Target', '.css.selector');
+
+        $this->assertTrue(Unpoly::isUnpolyRequest($request));
+    }
+
+    public function testVersionReturnsVersionFromHeader()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Version', '2.0.0');
+
+        $this->assertEquals('2.0.0', Unpoly::getVersion($request));
+    }
+
+    public function testModeReturnsModeFromHeader()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Mode', 'replace');
+
+        $this->assertEquals('replace', Unpoly::getMode($request));
+    }
+
+    public function testFailModeReturnsFailModeFromHeader()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Fail-Mode', 'replace');
+
+        $this->assertEquals('replace', Unpoly::getFailMode($request));
+    }
+
+    public function testTargetReturnsSelectorFromHeader()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Target', '.css.selector');
+
+        $this->assertEquals('.css.selector', Unpoly::getTarget($request));
+    }
+
+    public function testFailTargetReturnsSelectorFromHeader()
+    {
+        $request = Request::create('/foo/bar');
+        $request->headers->set('X-Up-Fail-Target', '.css.selector');
+
+        $this->assertEquals('.css.selector', Unpoly::getFailTarget($request));
+    }
+
     public function testAppendsRequestHeadersToResponse()
     {
         $request = Request::create('/foo/bar?param=baz', 'PUT');
