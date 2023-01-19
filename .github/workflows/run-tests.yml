@@ -8,10 +8,10 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                php: [7.4, 8.0, 8.1]
-                dependency-version: [prefer-lowest, prefer-stable]
+                php: [8.0, 8.1, 8.2]
+                stability: [prefer-lowest, prefer-stable]
 
-        name: PHP ${{ matrix.php }} - ${{ matrix.dependency-version }}
+        name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
         steps:
             -   name: Checkout code
@@ -30,8 +30,7 @@ jobs:
                     coverage: xdebug
 
             -   name: Install dependencies
-                run: |
-                    composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+                run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-suggest
 
             -   name: Execute tests
                 run: vendor/bin/phpunit
