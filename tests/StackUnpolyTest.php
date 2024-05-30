@@ -23,7 +23,7 @@ class StackUnpolyTest extends TestCase
         $unpoly->expects($this->once())->method('decorateResponse')->with($request, $response);
 
         $stack = new StackUnpoly($app, $unpoly);
-        $stack->handle($request, HttpKernelInterface::MASTER_REQUEST);
+        $stack->handle($request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     public function testSkipsSubRequests()

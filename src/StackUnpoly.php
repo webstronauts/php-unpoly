@@ -33,11 +33,11 @@ class StackUnpoly implements HttpKernelInterface
     /**
      * {@inheritdoc}
      */
-    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true): Response
+    public function handle(Request $request, $type = self::MAIN_REQUEST, $catch = true): Response
     {
         $response = $this->app->handle($request, $type, $catch);
 
-        if (self::MASTER_REQUEST === $type) {
+        if (self::MAIN_REQUEST === $type) {
             $this->unpoly->decorateResponse($request, $response);
         }
 
