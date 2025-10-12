@@ -11,6 +11,19 @@ Stack middleware for handling [Javascript Unpoly Framework](https://unpoly.com) 
     <img src="https://webstronauts.com/badges/sponsored-by-webstronauts.svg" alt="Sponsored by The Webstronauts" width="200" height="65">
 </a>
 
+## Unpoly Protocol Support
+
+This package implements the **Unpoly 2.x protocol**, providing full server-side support for:
+
+- ✅ **Request inspection** - Detect Unpoly requests, read target selectors, layer modes, and context
+- ✅ **Layer management** - Accept/dismiss overlays, open new layers, manage layer context
+- ✅ **Response manipulation** - Set document title, emit events, override targets
+- ✅ **Cache control** - Evict or expire cached responses
+- ✅ **Validation support** - Detect validation requests and handle field-level validation
+- ✅ **Context management** - Read and update layer context data
+
+The package is compatible with Unpoly 2.x. See the [official protocol documentation](https://unpoly.com/up.protocol) for details.
+
 ## Installation
 
 You can install the package via [Composer](https://getcomposer.org).
