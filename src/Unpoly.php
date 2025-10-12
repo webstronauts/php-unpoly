@@ -270,4 +270,146 @@ class Unpoly
     {
         return in_array($fieldName, $this->getValidateNames($request));
     }
+
+    /**
+     * Set the document title in the response.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $title
+     * @return void
+     */
+    public function setTitle(Response $response, string $title): void
+    {
+        $response->headers->set(self::TITLE_HEADER, Json::encode($title));
+    }
+
+    /**
+     * Set the target selector in the response to override rendering.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $target
+     * @return void
+     */
+    public function setTarget(Response $response, string $target): void
+    {
+        $response->headers->set(self::TARGET_RESPONSE_HEADER, $target);
+    }
+
+    /**
+     * Accept the current overlay layer and optionally set a response value.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  mixed  $value
+     * @return void
+     */
+    public function acceptLayer(Response $response, $value = null): void
+    {
+        $encoded = $value === null ? Json::encodeNull() : Json::encode($value);
+        $response->headers->set(self::ACCEPT_LAYER_HEADER, $encoded);
+    }
+
+    /**
+     * Dismiss the current overlay layer and optionally set a response value.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  mixed  $value
+     * @return void
+     */
+    public function dismissLayer(Response $response, $value = null): void
+    {
+        $encoded = $value === null ? Json::encodeNull() : Json::encode($value);
+        $response->headers->set(self::DISMISS_LAYER_HEADER, $encoded);
+    }
+
+    /**
+     * Update the layer context.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  array  $context
+     * @return void
+     */
+    public function setContext(Response $response, array $context): void
+    {
+        $response->headers->set(self::CONTEXT_RESPONSE_HEADER, Json::encode($context));
+    }
+
+    /**
+     * Emit events to be triggered on the client.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  array  $events
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    public function emitEvents(Response $response, array $events): void
+    {
+        // Validate event structure
+        foreach ($events as $event) {
+            if (!is_array($event) || !isset($event['type'])) {
+                throw new \InvalidArgumentException('Each event must be an array with a "type" property');
+            }
+        }
+
+        $response->headers->set(self::EVENTS_HEADER, Json::encode($events));
+    }
+
+    /**
+     * Emit a single event to be triggered on the client.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $type
+     * @param  array  $props
+     * @return void
+     */
+    public function emitEvent(Response $response, string $type, array $props = []): void
+    {
+        $event = array_merge(['type' => $type], $props);
+
+        // Check if there are existing events
+        $existingHeader = $response->headers->get(self::EVENTS_HEADER);
+        $existingEvents = $existingHeader ? Json::decodeArray($existingHeader) ?? [] : [];
+
+        $existingEvents[] = $event;
+
+        $this->emitEvents($response, $existingEvents);
+    }
+
+    /**
+     * Evict cached responses matching the given pattern.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $pattern
+     * @return void
+     */
+    public function evictCache(Response $response, string $pattern): void
+    {
+        $response->headers->set(self::EVICT_CACHE_HEADER, $pattern);
+    }
+
+    /**
+     * Expire cached responses matching the given pattern.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string|false  $pattern
+     * @return void
+     */
+    public function expireCache(Response $response, $pattern): void
+    {
+        if ($pattern === false) {
+            $response->headers->set(self::EXPIRE_CACHE_HEADER, 'false');
+        } else {
+            $response->headers->set(self::EXPIRE_CACHE_HEADER, $pattern);
+        }
+    }
+
+    /**
+     * Clear all cached responses.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return void
+     */
+    public function clearCache(Response $response): void
+    {
+        $this->evictCache($response, '*');
+    }
 }

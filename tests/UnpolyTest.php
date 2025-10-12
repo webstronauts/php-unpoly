@@ -358,4 +358,227 @@ class UnpolyTest extends TestCase
 
         $this->assertFalse((new Unpoly())->isValidatingField($request, 'email'));
     }
+
+    // Response header setting tests
+
+    public function testSetTitleSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setTitle($response, 'My Page Title');
+
+        $this->assertEquals('"My Page Title"', $response->headers->get('X-Up-Title'));
+    }
+
+    public function testSetTitleEncodesSpecialCharacters()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setTitle($response, 'Title with "quotes" and <tags>');
+
+        $title = $response->headers->get('X-Up-Title');
+        $this->assertStringContainsString('\u0022', $title);
+        $this->assertStringContainsString('\u003C', $title);
+    }
+
+    public function testSetTargetSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setTarget($response, '.content');
+
+        $this->assertEquals('.content', $response->headers->get('X-Up-Target'));
+    }
+
+    public function testAcceptLayerWithValue()
+    {
+        $response = new Response();
+
+        (new Unpoly())->acceptLayer($response, ['result' => 'success']);
+
+        $this->assertEquals('{"result":"success"}', $response->headers->get('X-Up-Accept-Layer'));
+    }
+
+    public function testAcceptLayerWithNull()
+    {
+        $response = new Response();
+
+        (new Unpoly())->acceptLayer($response);
+
+        $this->assertEquals('null', $response->headers->get('X-Up-Accept-Layer'));
+    }
+
+    public function testAcceptLayerWithExplicitNull()
+    {
+        $response = new Response();
+
+        (new Unpoly())->acceptLayer($response, null);
+
+        $this->assertEquals('null', $response->headers->get('X-Up-Accept-Layer'));
+    }
+
+    public function testDismissLayerWithValue()
+    {
+        $response = new Response();
+
+        (new Unpoly())->dismissLayer($response, ['reason' => 'cancelled']);
+
+        $this->assertEquals('{"reason":"cancelled"}', $response->headers->get('X-Up-Dismiss-Layer'));
+    }
+
+    public function testDismissLayerWithNull()
+    {
+        $response = new Response();
+
+        (new Unpoly())->dismissLayer($response);
+
+        $this->assertEquals('null', $response->headers->get('X-Up-Dismiss-Layer'));
+    }
+
+    public function testDismissLayerWithExplicitNull()
+    {
+        $response = new Response();
+
+        (new Unpoly())->dismissLayer($response, null);
+
+        $this->assertEquals('null', $response->headers->get('X-Up-Dismiss-Layer'));
+    }
+
+    public function testSetContextSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setContext($response, ['userId' => 123, 'role' => 'admin']);
+
+        $this->assertEquals('{"userId":123,"role":"admin"}', $response->headers->get('X-Up-Context'));
+    }
+
+    public function testSetContextWithEmptyArray()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setContext($response, []);
+
+        $this->assertEquals('[]', $response->headers->get('X-Up-Context'));
+    }
+
+    public function testEmitEventsSetsHeaderWithSingleEvent()
+    {
+        $response = new Response();
+
+        (new Unpoly())->emitEvents($response, [
+            ['type' => 'user:updated', 'userId' => 123]
+        ]);
+
+        $this->assertEquals('[{"type":"user:updated","userId":123}]', $response->headers->get('X-Up-Events'));
+    }
+
+    public function testEmitEventsSetsHeaderWithMultipleEvents()
+    {
+        $response = new Response();
+
+        (new Unpoly())->emitEvents($response, [
+            ['type' => 'user:updated', 'userId' => 123],
+            ['type' => 'notification:sent']
+        ]);
+
+        $expected = '[{"type":"user:updated","userId":123},{"type":"notification:sent"}]';
+        $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
+    }
+
+    public function testEmitEventsThrowsExceptionForInvalidEvent()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Each event must be an array with a "type" property');
+
+        $response = new Response();
+
+        (new Unpoly())->emitEvents($response, [
+            ['data' => 'missing type']
+        ]);
+    }
+
+    public function testEmitEventsThrowsExceptionForNonArrayEvent()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $response = new Response();
+
+        (new Unpoly())->emitEvents($response, ['not an array']);
+    }
+
+    public function testEmitEventWithTypeOnly()
+    {
+        $response = new Response();
+
+        (new Unpoly())->emitEvent($response, 'user:created');
+
+        $this->assertEquals('[{"type":"user:created"}]', $response->headers->get('X-Up-Events'));
+    }
+
+    public function testEmitEventWithProperties()
+    {
+        $response = new Response();
+
+        (new Unpoly())->emitEvent($response, 'user:updated', ['userId' => 123, 'name' => 'John']);
+
+        $expected = '[{"type":"user:updated","userId":123,"name":"John"}]';
+        $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
+    }
+
+    public function testEmitEventAppendsToExistingEvents()
+    {
+        $response = new Response();
+
+        (new Unpoly())->emitEvent($response, 'first:event');
+        (new Unpoly())->emitEvent($response, 'second:event', ['data' => 'value']);
+
+        $expected = '[{"type":"first:event"},{"type":"second:event","data":"value"}]';
+        $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
+    }
+
+    public function testEvictCacheSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->evictCache($response, '/notes/*');
+
+        $this->assertEquals('/notes/*', $response->headers->get('X-Up-Evict-Cache'));
+    }
+
+    public function testEvictCacheWithWildcard()
+    {
+        $response = new Response();
+
+        (new Unpoly())->evictCache($response, '*');
+
+        $this->assertEquals('*', $response->headers->get('X-Up-Evict-Cache'));
+    }
+
+    public function testExpireCacheSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->expireCache($response, '/api/*');
+
+        $this->assertEquals('/api/*', $response->headers->get('X-Up-Expire-Cache'));
+    }
+
+    public function testExpireCacheWithFalse()
+    {
+        $response = new Response();
+
+        (new Unpoly())->expireCache($response, false);
+
+        $this->assertEquals('false', $response->headers->get('X-Up-Expire-Cache'));
+    }
+
+    public function testClearCacheSetsWildcardEviction()
+    {
+        $response = new Response();
+
+        (new Unpoly())->clearCache($response);
+
+        $this->assertEquals('*', $response->headers->get('X-Up-Evict-Cache'));
+    }
 }
