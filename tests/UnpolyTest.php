@@ -10,17 +10,6 @@ use Webstronauts\Unpoly\Unpoly;
 
 class UnpolyTest extends TestCase
 {
-    public function testAppendsRequestHeadersToResponse()
-    {
-        $request = Request::create('/foo/bar?param=baz', 'PUT');
-        $response = new Response();
-
-        (new Unpoly())->decorateResponse($request, $response);
-
-        $this->assertEquals('http://localhost/foo/bar?param=baz', $response->headers->get('X-Up-Location'));
-        $this->assertEquals('PUT', $response->headers->get('X-Up-Method'));
-    }
-
     public function testAppendsRequestMethodCookieToResponse()
     {
         $request = Request::create('/foo/bar', 'PUT');

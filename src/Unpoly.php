@@ -53,7 +53,7 @@ class Unpoly
     const EXPIRE_CACHE_HEADER = 'X-Up-Expire-Cache';
 
     /**
-     * Modifies the HTTP headers and cookies of the response so that it can be
+     * Modifies the HTTP cookies of the response so that it can be
      * properly handled by the Unpoly javascript.
      *
      * @param  \Symfony\Component\HttpFoundation\Request  $request
@@ -62,24 +62,7 @@ class Unpoly
      */
     public function decorateResponse(Request $request, Response $response): void
     {
-        $this->echoRequestHeaders($request, $response);
         $this->appendMethodCookie($request, $response);
-    }
-
-    /**
-     * Unpoly requires these headers to detect redirects,
-     * which are otherwise undetectable for an AJAX client.
-     *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response  $response
-     * @return void
-     */
-    protected function echoRequestHeaders(Request $request, Response $response): void
-    {
-        $response->headers->add([
-            self::LOCATION_RESPONSE_HEADER => $request->getUri(),
-            self::METHOD_RESPONSE_HEADER => $request->getMethod(),
-        ]);
     }
 
     /**
