@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Generate changelog
         uses: TriPSs/conventional-changelog-action@v6
@@ -22,6 +24,7 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           skip-bump: true
+          skip-git-pull: true
 
       - name: Create release
         uses: softprops/action-gh-release@v2
