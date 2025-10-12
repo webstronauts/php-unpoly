@@ -957,4 +957,67 @@ class UnpolyTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+    // Vary header management (Unpoly 3.x)
+
+    public function testAddVarySetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+
+        $this->assertEquals('X-Up-Target', $response->headers->get('Vary'));
+    }
+
+    public function testAddVaryAppendsToExistingVary()
+    {
+        $response = new Response();
+        $response->headers->set('Vary', 'Accept');
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+
+        $this->assertEquals('Accept, X-Up-Target', $response->headers->get('Vary'));
+    }
+
+    public function testAddVaryDoesNotDuplicate()
+    {
+        $response = new Response();
+        $response->headers->set('Vary', 'X-Up-Target');
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+
+        $this->assertEquals('X-Up-Target', $response->headers->get('Vary'));
+    }
+
+    public function testAddVaryMultipleHeaders()
+    {
+        $response = new Response();
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly())->addVary($response, 'X-Up-Mode');
+        (new Unpoly())->addVary($response, 'X-Up-Context');
+
+        $this->assertEquals('X-Up-Target, X-Up-Mode, X-Up-Context', $response->headers->get('Vary'));
+    }
+
+    public function testAddVaryHandlesExistingCommaSeparatedList()
+    {
+        $response = new Response();
+        $response->headers->set('Vary', 'Accept, Accept-Encoding');
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+
+        $this->assertEquals('Accept, Accept-Encoding, X-Up-Target', $response->headers->get('Vary'));
+    }
+
+    public function testAddVaryTrimsWhitespace()
+    {
+        $response = new Response();
+        $response->headers->set('Vary', ' Accept , Accept-Encoding ');
+
+        (new Unpoly())->addVary($response, 'X-Up-Target');
+
+        $vary = $response->headers->get('Vary');
+        $this->assertEquals('Accept, Accept-Encoding, X-Up-Target', $vary);
+    }
 }

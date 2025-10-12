@@ -656,4 +656,36 @@ class Unpoly
         // No conditional headers or no comparison values - should render fresh content
         return true;
     }
+
+    /**
+     * Add a header name to the Vary response header.
+     *
+     * The Vary header tells Unpoly which request headers influenced the response,
+     * enabling proper cache partitioning. This is part of cache management in
+     * Unpoly 3.x.
+     *
+     * This method ensures the header name is only added once and properly formats
+     * the Vary header as a comma-separated list.
+     *
+     * @see https://unpoly.com/Vary
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $headerName
+     * @return void
+     */
+    public function addVary(Response $response, string $headerName): void
+    {
+        $vary = $response->headers->get('Vary', '');
+
+        // Parse existing Vary header into array
+        $headers = array_filter(array_map('trim', explode(',', $vary)));
+
+        // Add new header if not already present
+        if (!in_array($headerName, $headers, true)) {
+            $headers[] = $headerName;
+        }
+
+        // Set the updated Vary header
+        $response->headers->set('Vary', implode(', ', $headers));
+    }
 }
