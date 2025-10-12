@@ -65,4 +65,297 @@ class UnpolyTest extends TestCase
 
         return reset($filteredCookies) ?: null;
     }
+
+    // Request inspection tests
+
+    public function testIsUnpolyRequestReturnsTrueWithVersionHeader()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_VERSION' => '2.0.0']);
+
+        $this->assertTrue((new Unpoly())->isUnpolyRequest($request));
+    }
+
+    public function testIsUnpolyRequestReturnsTrueWithTargetHeader()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
+
+        $this->assertTrue((new Unpoly())->isUnpolyRequest($request));
+    }
+
+    public function testIsUnpolyRequestReturnsFalseWithoutHeaders()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->isUnpolyRequest($request));
+    }
+
+    public function testGetVersionReturnsVersion()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_VERSION' => '2.0.0']);
+
+        $this->assertEquals('2.0.0', (new Unpoly())->getVersion($request));
+    }
+
+    public function testGetVersionReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getVersion($request));
+    }
+
+    public function testGetTargetReturnsSelector()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
+
+        $this->assertEquals('.content', (new Unpoly())->getTarget($request));
+    }
+
+    public function testGetTargetReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getTarget($request));
+    }
+
+    public function testGetFailTargetReturnsSelector()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_FAIL_TARGET' => '.error']);
+
+        $this->assertEquals('.error', (new Unpoly())->getFailTarget($request));
+    }
+
+    public function testGetFailTargetReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getFailTarget($request));
+    }
+
+    public function testIsTargetReturnsTrueWhenMatches()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
+
+        $this->assertTrue((new Unpoly())->isTarget($request, '.content'));
+    }
+
+    public function testIsTargetReturnsFalseWhenDoesNotMatch()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
+
+        $this->assertFalse((new Unpoly())->isTarget($request, '.other'));
+    }
+
+    public function testIsTargetReturnsFalseWhenHeaderMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->isTarget($request, '.content'));
+    }
+
+    public function testGetModeReturnsMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
+
+        $this->assertEquals('modal', (new Unpoly())->getMode($request));
+    }
+
+    public function testGetModeReturnsRootByDefault()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertEquals('root', (new Unpoly())->getMode($request));
+    }
+
+    public function testGetFailModeReturnsMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_FAIL_MODE' => 'drawer']);
+
+        $this->assertEquals('drawer', (new Unpoly())->getFailMode($request));
+    }
+
+    public function testGetFailModeReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getFailMode($request));
+    }
+
+    public function testIsRootReturnsTrueForRootMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
+
+        $this->assertTrue((new Unpoly())->isRoot($request));
+    }
+
+    public function testIsRootReturnsTrueWhenModeNotSet()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertTrue((new Unpoly())->isRoot($request));
+    }
+
+    public function testIsRootReturnsFalseForOverlayMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
+
+        $this->assertFalse((new Unpoly())->isRoot($request));
+    }
+
+    public function testIsOverlayReturnsTrueForModalMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
+
+        $this->assertTrue((new Unpoly())->isOverlay($request));
+    }
+
+    public function testIsOverlayReturnsTrueForDrawerMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'drawer']);
+
+        $this->assertTrue((new Unpoly())->isOverlay($request));
+    }
+
+    public function testIsOverlayReturnsFalseForRootMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
+
+        $this->assertFalse((new Unpoly())->isOverlay($request));
+    }
+
+    public function testIsOverlayReturnsFalseWhenModeNotSet()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->isOverlay($request));
+    }
+
+    public function testGetContextReturnsContext()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}'
+        ]);
+
+        $context = (new Unpoly())->getContext($request);
+
+        $this->assertEquals(['userId' => 123, 'role' => 'admin'], $context);
+    }
+
+    public function testGetContextReturnsEmptyArrayWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertEquals([], (new Unpoly())->getContext($request));
+    }
+
+    public function testGetContextReturnsEmptyArrayForInvalidJson()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_CONTEXT' => 'invalid json'
+        ]);
+
+        $this->assertEquals([], (new Unpoly())->getContext($request));
+    }
+
+    public function testGetFailContextReturnsContext()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_FAIL_CONTEXT' => '{"error":"not_found"}'
+        ]);
+
+        $context = (new Unpoly())->getFailContext($request);
+
+        $this->assertEquals(['error' => 'not_found'], $context);
+    }
+
+    public function testGetFailContextReturnsEmptyArrayWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertEquals([], (new Unpoly())->getFailContext($request));
+    }
+
+    public function testIsValidateReturnsTrueWhenHeaderPresent()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => 'email password'
+        ]);
+
+        $this->assertTrue((new Unpoly())->isValidate($request));
+    }
+
+    public function testIsValidateReturnsFalseWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->isValidate($request));
+    }
+
+    public function testGetValidateNamesReturnsSingleField()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => 'email'
+        ]);
+
+        $this->assertEquals(['email'], (new Unpoly())->getValidateNames($request));
+    }
+
+    public function testGetValidateNamesReturnsMultipleFields()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => 'email password username'
+        ]);
+
+        $this->assertEquals(['email', 'password', 'username'], (new Unpoly())->getValidateNames($request));
+    }
+
+    public function testGetValidateNamesReturnsUnknown()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => ':unknown'
+        ]);
+
+        $this->assertEquals([':unknown'], (new Unpoly())->getValidateNames($request));
+    }
+
+    public function testGetValidateNamesReturnsEmptyArrayWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertEquals([], (new Unpoly())->getValidateNames($request));
+    }
+
+    public function testGetValidateNamesReturnsEmptyArrayForEmptyString()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => ''
+        ]);
+
+        $this->assertEquals([], (new Unpoly())->getValidateNames($request));
+    }
+
+    public function testIsValidatingFieldReturnsTrueWhenFieldIncluded()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => 'email password'
+        ]);
+
+        $this->assertTrue((new Unpoly())->isValidatingField($request, 'email'));
+        $this->assertTrue((new Unpoly())->isValidatingField($request, 'password'));
+    }
+
+    public function testIsValidatingFieldReturnsFalseWhenFieldNotIncluded()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_VALIDATE' => 'email password'
+        ]);
+
+        $this->assertFalse((new Unpoly())->isValidatingField($request, 'username'));
+    }
+
+    public function testIsValidatingFieldReturnsFalseWhenHeaderMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->isValidatingField($request, 'email'));
+    }
 }
