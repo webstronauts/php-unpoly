@@ -1020,4 +1020,53 @@ class UnpolyTest extends TestCase
         $vary = $response->headers->get('Vary');
         $this->assertEquals('Accept, Accept-Encoding, X-Up-Target', $vary);
     }
+
+    // Location and Method response headers
+
+    public function testSetLocationSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setLocation($response, '/users/123');
+
+        $this->assertEquals('/users/123', $response->headers->get('X-Up-Location'));
+    }
+
+    public function testSetLocationWithFullUrl()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setLocation($response, 'https://example.com/users/123');
+
+        $this->assertEquals('https://example.com/users/123', $response->headers->get('X-Up-Location'));
+    }
+
+    public function testSetMethodSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setMethod($response, 'GET');
+
+        $this->assertEquals('GET', $response->headers->get('X-Up-Method'));
+    }
+
+    public function testSetMethodUppercasesValue()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setMethod($response, 'post');
+
+        $this->assertEquals('POST', $response->headers->get('X-Up-Method'));
+    }
+
+    public function testSetLocationAndMethodTogether()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setLocation($response, '/users/123');
+        (new Unpoly())->setMethod($response, 'GET');
+
+        $this->assertEquals('/users/123', $response->headers->get('X-Up-Location'));
+        $this->assertEquals('GET', $response->headers->get('X-Up-Method'));
+    }
 }

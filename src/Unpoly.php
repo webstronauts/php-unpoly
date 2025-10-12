@@ -688,4 +688,48 @@ class Unpoly
         // Set the updated Vary header
         $response->headers->set('Vary', implode(', ', $headers));
     }
+
+    /**
+     * Set the browser location after a fragment update.
+     *
+     * This allows explicit control over the browser's location bar URL after
+     * Unpoly updates a fragment. This should ONLY be set when explicitly needed;
+     * it is NOT automatically set by php-unpoly.
+     *
+     * Use this when you want to update the URL independently of the response URL,
+     * such as after a successful form submission that returns updated content.
+     *
+     * @see https://unpoly.com/X-Up-Location
+     * @see https://github.com/webstronauts/php-unpoly/issues/10
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $url
+     * @return void
+     */
+    public function setLocation(Response $response, string $url): void
+    {
+        $response->headers->set(self::LOCATION_RESPONSE_HEADER, $url);
+    }
+
+    /**
+     * Set the request method for the browser location.
+     *
+     * This allows explicit control over the browser's perceived request method
+     * after Unpoly updates a fragment. This should ONLY be set when explicitly
+     * needed; it is NOT automatically set by php-unpoly.
+     *
+     * Use this in conjunction with setLocation() when the URL and method should
+     * differ from the actual request (e.g., after a POST that should appear as GET).
+     *
+     * @see https://unpoly.com/X-Up-Method
+     * @see https://github.com/webstronauts/php-unpoly/issues/10
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $method
+     * @return void
+     */
+    public function setMethod(Response $response, string $method): void
+    {
+        $response->headers->set(self::METHOD_RESPONSE_HEADER, strtoupper($method));
+    }
 }
