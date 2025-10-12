@@ -277,6 +277,52 @@ class UnpolyTest extends TestCase
         $this->assertEquals([], (new Unpoly())->getFailContext($request));
     }
 
+    // Cache revalidation tests (Unpoly 3.x)
+
+    public function testGetIfModifiedSinceReturnsDateTime()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+        ]);
+
+        $result = (new Unpoly())->getIfModifiedSince($request);
+
+        $this->assertInstanceOf(\DateTimeInterface::class, $result);
+        $this->assertEquals('2000-11-15 13:11:22', $result->format('Y-m-d H:i:s'));
+    }
+
+    public function testGetIfModifiedSinceReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getIfModifiedSince($request));
+    }
+
+    public function testGetIfModifiedSinceReturnsNullForInvalidFormat()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_MODIFIED_SINCE' => 'invalid date format'
+        ]);
+
+        $this->assertNull((new Unpoly())->getIfModifiedSince($request));
+    }
+
+    public function testHasIfModifiedSinceReturnsTrueWhenPresent()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+        ]);
+
+        $this->assertTrue((new Unpoly())->hasIfModifiedSince($request));
+    }
+
+    public function testHasIfModifiedSinceReturnsFalseWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->hasIfModifiedSince($request));
+    }
+
     public function testIsValidateRequestReturnsTrueWhenHeaderPresent()
     {
         $request = Request::create('/path', 'GET', [], [], [], [

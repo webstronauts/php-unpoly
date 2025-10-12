@@ -225,6 +225,43 @@ class Unpoly
     }
 
     /**
+     * Get the If-Modified-Since timestamp from the request.
+     *
+     * Unpoly sends this header when reloading a fragment to check if content
+     * has changed since the last request. This is part of standard HTTP cache
+     * revalidation introduced in Unpoly 3.x.
+     *
+     * @see https://unpoly.com/If-Modified-Since
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @return \DateTimeInterface|null
+     */
+    public function getIfModifiedSince(Request $request): ?\DateTimeInterface
+    {
+        $header = $request->headers->get('If-Modified-Since');
+
+        if ($header === null) {
+            return null;
+        }
+
+        // Parse RFC 1123 format: "Wed, 15 Nov 2000 13:11:22 GMT"
+        $time = \DateTimeImmutable::createFromFormat('D, d M Y H:i:s \G\M\T', $header);
+
+        return $time !== false ? $time : null;
+    }
+
+    /**
+     * Check if the request includes an If-Modified-Since header.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @return bool
+     */
+    public function hasIfModifiedSince(Request $request): bool
+    {
+        return $request->headers->has('If-Modified-Since');
+    }
+
+    /**
      * Check if the request is a validation request.
      *
      * @param  \Symfony\Component\HttpFoundation\Request  $request
