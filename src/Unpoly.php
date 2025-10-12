@@ -538,4 +538,50 @@ class Unpoly
         $formatted = gmdate('D, d M Y H:i:s', $time->getTimestamp()) . ' GMT';
         $response->headers->set('Last-Modified', $formatted);
     }
+
+    /**
+     * Set the ETag header for cache revalidation.
+     *
+     * This provides a hash/identifier for response content, enabling cache
+     * revalidation with If-None-Match. This is part of standard HTTP cache
+     * revalidation introduced in Unpoly 3.x.
+     *
+     * If the provided ETag is not properly quoted, this method will add quotes.
+     * Weak ETags should start with 'W/' (e.g., 'W/"abc123"').
+     *
+     * @see https://unpoly.com/ETag
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string  $etag
+     * @return void
+     */
+    public function setETag(Response $response, string $etag): void
+    {
+        // Ensure proper ETag format (quoted)
+        if (!str_starts_with($etag, '"') && !str_starts_with($etag, 'W/"')) {
+            $etag = '"' . $etag . '"';
+        }
+
+        $response->headers->set('ETag', $etag);
+    }
+
+    /**
+     * Generate an ETag from content.
+     *
+     * This creates a hash of the content that can be used for cache revalidation.
+     * By default, this generates a weak ETag (prefixed with 'W/').
+     *
+     * Weak ETags indicate semantic equivalence rather than byte-for-byte identity.
+     * They are suitable for most use cases and are the recommended default.
+     *
+     * @param  string  $content
+     * @param  bool  $weak  Whether to generate a weak ETag (default: true)
+     * @return string
+     */
+    public function generateETag(string $content, bool $weak = true): string
+    {
+        $hash = md5($content);
+
+        return $weak ? 'W/"' . $hash . '"' : '"' . $hash . '"';
+    }
 }

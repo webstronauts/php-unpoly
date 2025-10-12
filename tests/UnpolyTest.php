@@ -764,4 +764,67 @@ class UnpolyTest extends TestCase
         $this->assertStringContainsString('Fri, 15 Mar 2024', $header);
         $this->assertStringContainsString('GMT', $header);
     }
+
+    public function testSetETagSetsHeader()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setETag($response, 'abc123def456');
+
+        $this->assertEquals('"abc123def456"', $response->headers->get('ETag'));
+    }
+
+    public function testSetETagWithQuotedValue()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setETag($response, '"abc123def456"');
+
+        $this->assertEquals('"abc123def456"', $response->headers->get('ETag'));
+    }
+
+    public function testSetETagWithWeakValidator()
+    {
+        $response = new Response();
+
+        (new Unpoly())->setETag($response, 'W/"abc123def456"');
+
+        $this->assertEquals('W/"abc123def456"', $response->headers->get('ETag'));
+    }
+
+    public function testGenerateETagCreatesWeakETag()
+    {
+        $etag = (new Unpoly())->generateETag('Hello World');
+
+        $this->assertStringStartsWith('W/"', $etag);
+        $this->assertStringEndsWith('"', $etag);
+        $this->assertEquals('W/"b10a8db164e0754105b7a99be72e3fe5"', $etag);
+    }
+
+    public function testGenerateETagCreatesStrongETag()
+    {
+        $etag = (new Unpoly())->generateETag('Hello World', false);
+
+        $this->assertStringStartsWith('"', $etag);
+        $this->assertStringEndsWith('"', $etag);
+        $this->assertStringNotContainsString('W/', $etag);
+        $this->assertEquals('"b10a8db164e0754105b7a99be72e3fe5"', $etag);
+    }
+
+    public function testGenerateETagIsDeterministic()
+    {
+        $content = 'Test content for ETag generation';
+        $etag1 = (new Unpoly())->generateETag($content);
+        $etag2 = (new Unpoly())->generateETag($content);
+
+        $this->assertEquals($etag1, $etag2);
+    }
+
+    public function testGenerateETagDifferentForDifferentContent()
+    {
+        $etag1 = (new Unpoly())->generateETag('Content A');
+        $etag2 = (new Unpoly())->generateETag('Content B');
+
+        $this->assertNotEquals($etag1, $etag2);
+    }
 }
