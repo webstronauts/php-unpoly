@@ -334,6 +334,32 @@ class Unpoly
     }
 
     /**
+     * Merge changes into the layer context.
+     *
+     * This is useful when you want to update specific context keys without
+     * replacing the entire context. Set a key to null to remove it from context.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  array  $changes
+     * @return void
+     */
+    public function updateContext(Request $request, Response $response, array $changes): void
+    {
+        $currentContext = $this->getContext($request);
+
+        foreach ($changes as $key => $value) {
+            if ($value === null) {
+                unset($currentContext[$key]);
+            } else {
+                $currentContext[$key] = $value;
+            }
+        }
+
+        $this->setContext($response, $currentContext);
+    }
+
+    /**
      * Emit events to be triggered on the client.
      *
      * @param  \Symfony\Component\HttpFoundation\Response  $response

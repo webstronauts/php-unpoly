@@ -462,6 +462,43 @@ class UnpolyTest extends TestCase
         $this->assertEquals('[]', $response->headers->get('X-Up-Context'));
     }
 
+    public function testUpdateContextMergesChanges()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}'
+        ]);
+        $response = new Response();
+
+        (new Unpoly())->updateContext($request, $response, ['role' => 'superadmin', 'theme' => 'dark']);
+
+        $context = json_decode($response->headers->get('X-Up-Context'), true);
+        $this->assertEquals(['userId' => 123, 'role' => 'superadmin', 'theme' => 'dark'], $context);
+    }
+
+    public function testUpdateContextRemovesNullKeys()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin","theme":"dark"}'
+        ]);
+        $response = new Response();
+
+        (new Unpoly())->updateContext($request, $response, ['role' => null]);
+
+        $context = json_decode($response->headers->get('X-Up-Context'), true);
+        $this->assertEquals(['userId' => 123, 'theme' => 'dark'], $context);
+    }
+
+    public function testUpdateContextWorksWithEmptyContext()
+    {
+        $request = Request::create('/path', 'GET');
+        $response = new Response();
+
+        (new Unpoly())->updateContext($request, $response, ['newKey' => 'newValue']);
+
+        $context = json_decode($response->headers->get('X-Up-Context'), true);
+        $this->assertEquals(['newKey' => 'newValue'], $context);
+    }
+
     public function testEmitEventsSetsHeaderWithSingleEvent()
     {
         $response = new Response();
