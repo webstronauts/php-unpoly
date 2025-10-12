@@ -518,4 +518,24 @@ class Unpoly
     {
         $this->evictCache($response, '*');
     }
+
+    /**
+     * Set the Last-Modified header for cache revalidation.
+     *
+     * This tells Unpoly when the content was last modified, enabling cache
+     * revalidation with If-Modified-Since. This is part of standard HTTP
+     * cache revalidation introduced in Unpoly 3.x.
+     *
+     * @see https://unpoly.com/Last-Modified
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  \DateTimeInterface  $time
+     * @return void
+     */
+    public function setLastModified(Response $response, \DateTimeInterface $time): void
+    {
+        // Format as RFC 1123: "Wed, 15 Nov 2000 13:11:22 GMT"
+        $formatted = gmdate('D, d M Y H:i:s', $time->getTimestamp()) . ' GMT';
+        $response->headers->set('Last-Modified', $formatted);
+    }
 }

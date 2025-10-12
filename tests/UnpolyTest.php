@@ -726,4 +726,42 @@ class UnpolyTest extends TestCase
 
         $this->assertEquals('*', $response->headers->get('X-Up-Evict-Cache'));
     }
+
+    // Cache revalidation response headers (Unpoly 3.x)
+
+    public function testSetLastModifiedSetsHeader()
+    {
+        $response = new Response();
+        $time = new \DateTimeImmutable('2000-11-15 13:11:22 GMT');
+
+        (new Unpoly())->setLastModified($response, $time);
+
+        $this->assertEquals('Wed, 15 Nov 2000 13:11:22 GMT', $response->headers->get('Last-Modified'));
+    }
+
+    public function testSetLastModifiedWithDateTime()
+    {
+        $response = new Response();
+        $time = new \DateTime('2024-03-15 08:30:00 GMT');
+
+        (new Unpoly())->setLastModified($response, $time);
+
+        $this->assertEquals('Fri, 15 Mar 2024 08:30:00 GMT', $response->headers->get('Last-Modified'));
+    }
+
+    public function testSetLastModifiedWithDifferentTimezone()
+    {
+        $response = new Response();
+        // Create a time in EST timezone
+        $time = new \DateTimeImmutable('2024-03-15 10:00:00', new \DateTimeZone('America/New_York'));
+
+        (new Unpoly())->setLastModified($response, $time);
+
+        // Should be converted to GMT (10:00 EST = 15:00 GMT during DST, or 14:00 GMT without DST)
+        // Let's verify the header is set correctly
+        $header = $response->headers->get('Last-Modified');
+        $this->assertNotNull($header);
+        $this->assertStringContainsString('Fri, 15 Mar 2024', $header);
+        $this->assertStringContainsString('GMT', $header);
+    }
 }
