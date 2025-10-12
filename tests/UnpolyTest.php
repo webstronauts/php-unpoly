@@ -131,25 +131,25 @@ class UnpolyTest extends TestCase
         $this->assertNull((new Unpoly())->getFailTarget($request));
     }
 
-    public function testIsTargetReturnsTrueWhenMatches()
+    public function testIsTargetRequestReturnsTrueWhenMatches()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertTrue((new Unpoly())->isTarget($request, '.content'));
+        $this->assertTrue((new Unpoly())->isTargetRequest($request, '.content'));
     }
 
-    public function testIsTargetReturnsFalseWhenDoesNotMatch()
+    public function testIsTargetRequestReturnsFalseWhenDoesNotMatch()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertFalse((new Unpoly())->isTarget($request, '.other'));
+        $this->assertFalse((new Unpoly())->isTargetRequest($request, '.other'));
     }
 
-    public function testIsTargetReturnsFalseWhenHeaderMissing()
+    public function testIsTargetRequestReturnsFalseWhenHeaderMissing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isTarget($request, '.content'));
+        $this->assertFalse((new Unpoly())->isTargetRequest($request, '.content'));
     }
 
     public function testGetModeReturnsMode()
@@ -194,53 +194,53 @@ class UnpolyTest extends TestCase
         $this->assertNull((new Unpoly())->getOriginMode($request));
     }
 
-    public function testIsRootReturnsTrueForRootMode()
+    public function testIsRootRequestReturnsTrueForRootMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
 
-        $this->assertTrue((new Unpoly())->isRoot($request));
+        $this->assertTrue((new Unpoly())->isRootRequest($request));
     }
 
-    public function testIsRootReturnsTrueWhenModeNotSet()
+    public function testIsRootRequestReturnsTrueWhenModeNotSet()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertTrue((new Unpoly())->isRoot($request));
+        $this->assertTrue((new Unpoly())->isRootRequest($request));
     }
 
-    public function testIsRootReturnsFalseForOverlayMode()
+    public function testIsRootRequestReturnsFalseForOverlayMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
 
-        $this->assertFalse((new Unpoly())->isRoot($request));
+        $this->assertFalse((new Unpoly())->isRootRequest($request));
     }
 
-    public function testIsOverlayReturnsTrueForModalMode()
+    public function testIsOverlayRequestReturnsTrueForModalMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
 
-        $this->assertTrue((new Unpoly())->isOverlay($request));
+        $this->assertTrue((new Unpoly())->isOverlayRequest($request));
     }
 
-    public function testIsOverlayReturnsTrueForDrawerMode()
+    public function testIsOverlayRequestReturnsTrueForDrawerMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'drawer']);
 
-        $this->assertTrue((new Unpoly())->isOverlay($request));
+        $this->assertTrue((new Unpoly())->isOverlayRequest($request));
     }
 
-    public function testIsOverlayReturnsFalseForRootMode()
+    public function testIsOverlayRequestReturnsFalseForRootMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
 
-        $this->assertFalse((new Unpoly())->isOverlay($request));
+        $this->assertFalse((new Unpoly())->isOverlayRequest($request));
     }
 
-    public function testIsOverlayReturnsFalseWhenModeNotSet()
+    public function testIsOverlayRequestReturnsFalseWhenModeNotSet()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isOverlay($request));
+        $this->assertFalse((new Unpoly())->isOverlayRequest($request));
     }
 
     public function testGetContextReturnsContext()
@@ -288,20 +288,20 @@ class UnpolyTest extends TestCase
         $this->assertEquals([], (new Unpoly())->getFailContext($request));
     }
 
-    public function testIsValidateReturnsTrueWhenHeaderPresent()
+    public function testIsValidateRequestReturnsTrueWhenHeaderPresent()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
             'HTTP_X_UP_VALIDATE' => 'email password'
         ]);
 
-        $this->assertTrue((new Unpoly())->isValidate($request));
+        $this->assertTrue((new Unpoly())->isValidateRequest($request));
     }
 
-    public function testIsValidateReturnsFalseWhenMissing()
+    public function testIsValidateRequestReturnsFalseWhenMissing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isValidate($request));
+        $this->assertFalse((new Unpoly())->isValidateRequest($request));
     }
 
     public function testGetValidateNamesReturnsSingleField()
@@ -347,30 +347,30 @@ class UnpolyTest extends TestCase
         $this->assertEquals([], (new Unpoly())->getValidateNames($request));
     }
 
-    public function testIsValidatingFieldReturnsTrueWhenFieldIncluded()
+    public function testIsValidatingFieldRequestReturnsTrueWhenFieldIncluded()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
             'HTTP_X_UP_VALIDATE' => 'email password'
         ]);
 
-        $this->assertTrue((new Unpoly())->isValidatingField($request, 'email'));
-        $this->assertTrue((new Unpoly())->isValidatingField($request, 'password'));
+        $this->assertTrue((new Unpoly())->isValidatingFieldRequest($request, 'email'));
+        $this->assertTrue((new Unpoly())->isValidatingFieldRequest($request, 'password'));
     }
 
-    public function testIsValidatingFieldReturnsFalseWhenFieldNotIncluded()
+    public function testIsValidatingFieldRequestReturnsFalseWhenFieldNotIncluded()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
             'HTTP_X_UP_VALIDATE' => 'email password'
         ]);
 
-        $this->assertFalse((new Unpoly())->isValidatingField($request, 'username'));
+        $this->assertFalse((new Unpoly())->isValidatingFieldRequest($request, 'username'));
     }
 
-    public function testIsValidatingFieldReturnsFalseWhenHeaderMissing()
+    public function testIsValidatingFieldRequestReturnsFalseWhenHeaderMissing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isValidatingField($request, 'email'));
+        $this->assertFalse((new Unpoly())->isValidatingFieldRequest($request, 'email'));
     }
 
     // Response header setting tests

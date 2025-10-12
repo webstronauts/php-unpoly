@@ -156,7 +156,7 @@ class Unpoly
      * @param  string  $selector
      * @return bool
      */
-    public function isTarget(Request $request, string $selector): bool
+    public function isTargetRequest(Request $request, string $selector): bool
     {
         return $this->getTarget($request) === $selector;
     }
@@ -203,7 +203,7 @@ class Unpoly
      * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return bool
      */
-    public function isRoot(Request $request): bool
+    public function isRootRequest(Request $request): bool
     {
         return $this->getMode($request) === 'root';
     }
@@ -214,9 +214,9 @@ class Unpoly
      * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return bool
      */
-    public function isOverlay(Request $request): bool
+    public function isOverlayRequest(Request $request): bool
     {
-        return !$this->isRoot($request);
+        return !$this->isRootRequest($request);
     }
 
     /**
@@ -247,7 +247,7 @@ class Unpoly
      * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return bool
      */
-    public function isValidate(Request $request): bool
+    public function isValidateRequest(Request $request): bool
     {
         return $request->headers->has(self::VALIDATE_HEADER);
     }
@@ -282,7 +282,7 @@ class Unpoly
      * @param  string  $fieldName
      * @return bool
      */
-    public function isValidatingField(Request $request, string $fieldName): bool
+    public function isValidatingFieldRequest(Request $request, string $fieldName): bool
     {
         return in_array($fieldName, $this->getValidateNames($request));
     }
