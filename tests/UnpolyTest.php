@@ -323,6 +323,47 @@ class UnpolyTest extends TestCase
         $this->assertFalse((new Unpoly())->hasIfModifiedSince($request));
     }
 
+    public function testGetIfNoneMatchReturnsETag()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"'
+        ]);
+
+        $this->assertEquals('W/"55e4d42a148795d9f25f89d4"', (new Unpoly())->getIfNoneMatch($request));
+    }
+
+    public function testGetIfNoneMatchReturnsStrongETag()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => '"abc123def456"'
+        ]);
+
+        $this->assertEquals('"abc123def456"', (new Unpoly())->getIfNoneMatch($request));
+    }
+
+    public function testGetIfNoneMatchReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getIfNoneMatch($request));
+    }
+
+    public function testHasIfNoneMatchReturnsTrueWhenPresent()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"'
+        ]);
+
+        $this->assertTrue((new Unpoly())->hasIfNoneMatch($request));
+    }
+
+    public function testHasIfNoneMatchReturnsFalseWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertFalse((new Unpoly())->hasIfNoneMatch($request));
+    }
+
     public function testIsValidateRequestReturnsTrueWhenHeaderPresent()
     {
         $request = Request::create('/path', 'GET', [], [], [], [

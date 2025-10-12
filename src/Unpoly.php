@@ -262,6 +262,35 @@ class Unpoly
     }
 
     /**
+     * Get the If-None-Match ETag from the request.
+     *
+     * Unpoly sends this header when reloading a fragment to check if the ETag
+     * matches. This is part of standard HTTP cache revalidation introduced in
+     * Unpoly 3.x. If both If-None-Match and If-Modified-Since are present,
+     * If-None-Match takes precedence.
+     *
+     * @see https://unpoly.com/If-None-Match
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @return string|null
+     */
+    public function getIfNoneMatch(Request $request): ?string
+    {
+        return $request->headers->get('If-None-Match');
+    }
+
+    /**
+     * Check if the request includes an If-None-Match header.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @return bool
+     */
+    public function hasIfNoneMatch(Request $request): bool
+    {
+        return $request->headers->has('If-None-Match');
+    }
+
+    /**
      * Check if the request is a validation request.
      *
      * @param  \Symfony\Component\HttpFoundation\Request  $request
