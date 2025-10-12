@@ -827,4 +827,134 @@ class UnpolyTest extends TestCase
 
         $this->assertNotEquals($etag1, $etag2);
     }
+
+    public function testNotModifiedSetsStatus304()
+    {
+        $response = new Response('Original content');
+        $response->setStatusCode(200);
+
+        (new Unpoly())->notModified($response);
+
+        $this->assertEquals(304, $response->getStatusCode());
+    }
+
+    public function testNotModifiedClearsBody()
+    {
+        $response = new Response('Original content');
+
+        (new Unpoly())->notModified($response);
+
+        $this->assertEquals('', $response->getContent());
+    }
+
+    public function testNotModifiedPreservesHeaders()
+    {
+        $response = new Response('Original content');
+        $response->headers->set('ETag', 'W/"abc123"');
+        $response->headers->set('Last-Modified', 'Wed, 15 Nov 2000 13:11:22 GMT');
+
+        (new Unpoly())->notModified($response);
+
+        $this->assertEquals('W/"abc123"', $response->headers->get('ETag'));
+        $this->assertEquals('Wed, 15 Nov 2000 13:11:22 GMT', $response->headers->get('Last-Modified'));
+    }
+
+    public function testIsNotModifiedReturnsTrueFor304()
+    {
+        $response = new Response();
+        $response->setStatusCode(304);
+
+        $this->assertTrue((new Unpoly())->isNotModified($response));
+    }
+
+    public function testIsNotModifiedReturnsFalseFor200()
+    {
+        $response = new Response();
+        $response->setStatusCode(200);
+
+        $this->assertFalse((new Unpoly())->isNotModified($response));
+    }
+
+    public function testShouldRevalidateReturnsFalseWhenETagMatches()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => 'W/"abc123"'
+        ]);
+
+        $result = (new Unpoly())->shouldRevalidate($request, null, 'W/"abc123"');
+
+        $this->assertFalse($result);
+    }
+
+    public function testShouldRevalidateReturnsTrueWhenETagDiffers()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => 'W/"abc123"'
+        ]);
+
+        $result = (new Unpoly())->shouldRevalidate($request, null, 'W/"xyz789"');
+
+        $this->assertTrue($result);
+    }
+
+    public function testShouldRevalidateNormalizesETag()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => '"abc123"'
+        ]);
+
+        // ETag without quotes should be normalized for comparison
+        $result = (new Unpoly())->shouldRevalidate($request, null, 'abc123');
+
+        $this->assertFalse($result);
+    }
+
+    public function testShouldRevalidateReturnsFalseWhenNotModifiedSince()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+        ]);
+
+        $lastModified = new \DateTimeImmutable('2000-11-15 13:11:22 GMT');
+
+        $result = (new Unpoly())->shouldRevalidate($request, $lastModified);
+
+        $this->assertFalse($result);
+    }
+
+    public function testShouldRevalidateReturnsTrueWhenModifiedSince()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+        ]);
+
+        $lastModified = new \DateTimeImmutable('2000-11-15 14:00:00 GMT');
+
+        $result = (new Unpoly())->shouldRevalidate($request, $lastModified);
+
+        $this->assertTrue($result);
+    }
+
+    public function testShouldRevalidateETagTakesPrecedence()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], [
+            'HTTP_IF_NONE_MATCH' => 'W/"abc123"',
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+        ]);
+
+        // ETag matches, so should return false even though lastModified is later
+        $lastModified = new \DateTimeImmutable('2000-11-15 14:00:00 GMT');
+        $result = (new Unpoly())->shouldRevalidate($request, $lastModified, 'W/"abc123"');
+
+        $this->assertFalse($result);
+    }
+
+    public function testShouldRevalidateReturnsTrueWhenNoConditionalHeaders()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $result = (new Unpoly())->shouldRevalidate($request);
+
+        $this->assertTrue($result);
+    }
 }

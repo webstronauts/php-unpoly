@@ -584,4 +584,76 @@ class Unpoly
 
         return $weak ? 'W/"' . $hash . '"' : '"' . $hash . '"';
     }
+
+    /**
+     * Set the response to 304 Not Modified status.
+     *
+     * This should be called when content has not changed since the client's
+     * last request, as determined by comparing If-Modified-Since or If-None-Match
+     * headers. The response body is cleared, but cache-related headers like
+     * ETag, Last-Modified, and Vary are preserved.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return void
+     */
+    public function notModified(Response $response): void
+    {
+        $response->setStatusCode(304);
+        $response->setContent('');
+    }
+
+    /**
+     * Check if a response has 304 Not Modified status.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return bool
+     */
+    public function isNotModified(Response $response): bool
+    {
+        return $response->getStatusCode() === 304;
+    }
+
+    /**
+     * Check if content should be revalidated based on request headers.
+     *
+     * This helper method compares the client's If-None-Match and If-Modified-Since
+     * headers against the current ETag and last modified time. Returns true if the
+     * content has changed and should be sent, false if a 304 Not Modified response
+     * can be returned.
+     *
+     * If-None-Match (ETag) takes precedence over If-Modified-Since when both are present.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \DateTimeInterface|null  $lastModified
+     * @param  string|null  $etag
+     * @return bool  True if content should be sent (changed), false if 304 can be returned
+     */
+    public function shouldRevalidate(Request $request, ?\DateTimeInterface $lastModified = null, ?string $etag = null): bool
+    {
+        // Check If-None-Match (ETag takes precedence)
+        $ifNoneMatch = $this->getIfNoneMatch($request);
+        if ($ifNoneMatch !== null && $etag !== null) {
+            // Ensure etag is properly formatted for comparison
+            $normalizedETag = $etag;
+            if (!str_starts_with($etag, '"') && !str_starts_with($etag, 'W/"')) {
+                $normalizedETag = '"' . $etag . '"';
+            }
+
+            // If ETags match, content has NOT changed (return false)
+            if ($ifNoneMatch === $normalizedETag) {
+                return false;
+            }
+        }
+
+        // Check If-Modified-Since
+        $ifModifiedSince = $this->getIfModifiedSince($request);
+        if ($ifModifiedSince !== null && $lastModified !== null) {
+            // If content was modified after the client's timestamp, it has changed (return true)
+            // If content was NOT modified after the client's timestamp, it has NOT changed (return false)
+            return $lastModified->getTimestamp() > $ifModifiedSince->getTimestamp();
+        }
+
+        // No conditional headers or no comparison values - should render fresh content
+        return true;
+    }
 }
