@@ -180,6 +180,20 @@ class UnpolyTest extends TestCase
         $this->assertNull((new Unpoly())->getFailMode($request));
     }
 
+    public function testGetOriginModeReturnsMode()
+    {
+        $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_ORIGIN_MODE' => 'drawer']);
+
+        $this->assertEquals('drawer', (new Unpoly())->getOriginMode($request));
+    }
+
+    public function testGetOriginModeReturnsNullWhenMissing()
+    {
+        $request = Request::create('/path', 'GET');
+
+        $this->assertNull((new Unpoly())->getOriginMode($request));
+    }
+
     public function testIsRootReturnsTrueForRootMode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
@@ -442,6 +456,24 @@ class UnpolyTest extends TestCase
         (new Unpoly())->dismissLayer($response, null);
 
         $this->assertEquals('null', $response->headers->get('X-Up-Dismiss-Layer'));
+    }
+
+    public function testOpenLayerWithOptions()
+    {
+        $response = new Response();
+
+        (new Unpoly())->openLayer($response, ['mode' => 'modal', 'target' => '.content']);
+
+        $this->assertEquals('{"mode":"modal","target":".content"}', $response->headers->get('X-Up-Open-Layer'));
+    }
+
+    public function testOpenLayerWithEmptyOptions()
+    {
+        $response = new Response();
+
+        (new Unpoly())->openLayer($response);
+
+        $this->assertEquals('[]', $response->headers->get('X-Up-Open-Layer'));
     }
 
     public function testSetContextSetsHeader()

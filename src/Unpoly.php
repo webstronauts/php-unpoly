@@ -36,6 +36,7 @@ class Unpoly
     const FAIL_TARGET_HEADER = 'X-Up-Fail-Target';
     const MODE_HEADER = 'X-Up-Mode';
     const FAIL_MODE_HEADER = 'X-Up-Fail-Mode';
+    const ORIGIN_MODE_HEADER = 'X-Up-Origin-Mode';
     const CONTEXT_HEADER = 'X-Up-Context';
     const FAIL_CONTEXT_HEADER = 'X-Up-Fail-Context';
     const VALIDATE_HEADER = 'X-Up-Validate';
@@ -45,6 +46,7 @@ class Unpoly
     const EVENTS_HEADER = 'X-Up-Events';
     const ACCEPT_LAYER_HEADER = 'X-Up-Accept-Layer';
     const DISMISS_LAYER_HEADER = 'X-Up-Dismiss-Layer';
+    const OPEN_LAYER_HEADER = 'X-Up-Open-Layer';
     const CONTEXT_RESPONSE_HEADER = 'X-Up-Context';
     const TARGET_RESPONSE_HEADER = 'X-Up-Target';
     const EVICT_CACHE_HEADER = 'X-Up-Evict-Cache';
@@ -179,6 +181,20 @@ class Unpoly
     public function getFailMode(Request $request): ?string
     {
         return $request->headers->get(self::FAIL_MODE_HEADER);
+    }
+
+    /**
+     * Get the origin layer mode from the request.
+     *
+     * This is the mode of the layer where the interaction originated,
+     * which may be different from the target layer.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @return string|null
+     */
+    public function getOriginMode(Request $request): ?string
+    {
+        return $request->headers->get(self::ORIGIN_MODE_HEADER);
     }
 
     /**
@@ -319,6 +335,21 @@ class Unpoly
     {
         $encoded = $value === null ? Json::encodeNull() : Json::encode($value);
         $response->headers->set(self::DISMISS_LAYER_HEADER, $encoded);
+    }
+
+    /**
+     * Force the response to open a new overlay layer.
+     *
+     * This can be used to open a layer from the server even if the
+     * original request was not targeting an overlay.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  array  $options  Layer options (mode, target, etc.) as an associative array
+     * @return void
+     */
+    public function openLayer(Response $response, array $options = []): void
+    {
+        $response->headers->set(self::OPEN_LAYER_HEADER, Json::encode($options));
     }
 
     /**
