@@ -6,9 +6,12 @@
 
 PHP middleware for handling [Javascript Unpoly Framework](https://unpoly.com) requests.
 
-<a href="https://webstronauts.com/">
-    <img src="https://webstronauts.com/badges/sponsored-by-webstronauts.svg" alt="Sponsored by The Webstronauts" width="200" height="65">
-</a>
+---
+
+<img src="https://webstronauts.com/images/logo-circle.svg?foo=bar" height="16" alt="" />  Built by
+ <b><a href="https://webstronauts.com/?utm_source=php-unpoly&utm_campaign=readme-button&utm_medium=github">The Webstronauts</a></b>, go-to agency for <b>challenging ideas</b> and <b>ambitious organisations</b>.
+
+---
 
 ## Unpoly Protocol Support
 
