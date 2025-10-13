@@ -10,7 +10,6 @@ jobs:
     tests:
         runs-on: ubuntu-latest
         strategy:
-            fail-fast: true
             matrix:
                 php: [8.1, 8.2, 8.3, 8.4]
                 stability: [prefer-lowest, prefer-stable]
