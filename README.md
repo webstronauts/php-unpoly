@@ -13,16 +13,19 @@ Stack middleware for handling [Javascript Unpoly Framework](https://unpoly.com) 
 
 ## Unpoly Protocol Support
 
-This package implements the **Unpoly 2.x protocol**, providing full server-side support for:
+This package implements the **Unpoly 3.x protocol**, providing full server-side support for:
 
 - ✅ **Request inspection** - Detect Unpoly requests, read target selectors, layer modes, and context
 - ✅ **Layer management** - Accept/dismiss overlays, open new layers, manage layer context
 - ✅ **Response manipulation** - Set document title, emit events, override targets
 - ✅ **Cache control** - Evict or expire cached responses
+- ✅ **Cache revalidation** - Support If-Modified-Since, If-None-Match, ETag, Last-Modified, and 304 responses
+- ✅ **Vary header management** - Proper cache partitioning with Vary headers
 - ✅ **Validation support** - Detect validation requests and handle field-level validation
 - ✅ **Context management** - Read and update layer context data
+- ✅ **Location/Method control** - Explicitly set browser location and method after fragment updates
 
-The package is compatible with Unpoly 2.x. See the [official protocol documentation](https://unpoly.com/up.protocol) for details.
+The package is compatible with Unpoly 3.x. See the [official protocol documentation](https://unpoly.com/up.protocol) for details.
 
 ## Installation
 
