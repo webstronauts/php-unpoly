@@ -1,6 +1,6 @@
 {
     "name": "webstronauts/unpoly",
-    "description": "Stack middleware for handling Javascript Unpoly Framework requests",
+    "description": "PHP middleware for handling Javascript Unpoly Framework requests",
     "type": "library",
     "license": "MIT",
     "authors": [

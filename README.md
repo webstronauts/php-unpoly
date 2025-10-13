@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/webstronauts/php-unpoly/test.yml?branch=main&style=flat-square)](https://github.com/webstronauts/php-unpoly/actions?query=workflow%3Atest)
 [![Total Downloads](https://img.shields.io/packagist/dt/webstronauts/unpoly.svg?style=flat-square)](https://packagist.org/packages/webstronauts/unpoly)
 
-Stack middleware for handling [Javascript Unpoly Framework](https://unpoly.com) requests.
+PHP middleware for handling [Javascript Unpoly Framework](https://unpoly.com) requests.
 
 <a href="https://webstronauts.com/">
     <img src="https://webstronauts.com/badges/sponsored-by-webstronauts.svg" alt="Sponsored by The Webstronauts" width="200" height="65">
@@ -49,17 +49,47 @@ $unpoly = new Unpoly();
 $unpoly->decorateResponse($request, $response);
 ```
 
-### Stack Middleware
+### Symfony
 
-You can decorate the response using the supplied [Stack](http://stackphp.com) middleware.
+To use the package with Symfony, create an event subscriber that decorates responses:
 
 ```php
-use Webstronauts\Unpoly\StackUnpoly;
+<?php
+
+namespace App\EventSubscriber;
+
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Webstronauts\Unpoly\Unpoly;
 
-// ...
+class UnpolySubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::RESPONSE => 'onKernelResponse',
+        ];
+    }
 
-$app = new StackUnpoly($app, new Unpoly());
+    public function onKernelResponse(ResponseEvent $event): void
+    {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        (new Unpoly())->decorateResponse($event->getRequest(), $event->getResponse());
+    }
+}
+```
+
+Register the subscriber in `config/services.yaml`:
+
+```yaml
+services:
+    App\EventSubscriber\UnpolySubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
 ```
 
 ### Laravel
