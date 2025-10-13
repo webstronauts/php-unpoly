@@ -12,7 +12,6 @@ class Json
      * with both Unpoly 2.x and 3.x.
      *
      * @param  mixed  $value
-     * @return string
      */
     public static function encode($value): string
     {
@@ -29,7 +28,6 @@ class Json
      * forgiving than strict JSON. This method attempts to decode JSON
      * and handles edge cases gracefully.
      *
-     * @param  string|null  $json
      * @return mixed
      */
     public static function decode(?string $json)
@@ -52,9 +50,6 @@ class Json
      * Parse JSON array from Unpoly request header.
      *
      * Returns an array or null if parsing fails or value is not an array.
-     *
-     * @param  string|null  $json
-     * @return array|null
      */
     public static function decodeArray(?string $json): ?array
     {
@@ -67,9 +62,6 @@ class Json
      * Parse JSON object (associative array) from Unpoly request header.
      *
      * Returns an associative array or null if parsing fails or value is not an object.
-     *
-     * @param  string|null  $json
-     * @return array|null
      */
     public static function decodeObject(?string $json): ?array
     {
@@ -90,7 +82,6 @@ class Json
      * This method distinguishes between null and the string "null".
      *
      * @param  mixed  $value
-     * @return bool
      */
     public static function isNull($value): bool
     {
@@ -101,8 +92,6 @@ class Json
      * Encode null for Unpoly headers.
      *
      * Returns the string "null" to represent JSON null in headers.
-     *
-     * @return string
      */
     public static function encodeNull(): string
     {

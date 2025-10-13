@@ -11,10 +11,10 @@ use Webstronauts\Unpoly\Unpoly;
 
 class StackUnpolyTest extends TestCase
 {
-    public function testPassesResponseToUnpolyInstance()
+    public function test_passes_response_to_unpoly_instance()
     {
-        $request = new Request();
-        $response = new Response();
+        $request = new Request;
+        $response = new Response;
 
         $app = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
         $app->expects($this->once())->method('handle')->willReturn($response);
@@ -26,10 +26,10 @@ class StackUnpolyTest extends TestCase
         $stack->handle($request, HttpKernelInterface::MAIN_REQUEST);
     }
 
-    public function testSkipsSubRequests()
+    public function test_skips_sub_requests()
     {
-        $request = new Request();
-        $response = new Response();
+        $request = new Request;
+        $response = new Response;
 
         $app = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
         $app->expects($this->once())->method('handle')->willReturn($response);

@@ -10,26 +10,26 @@ use Webstronauts\Unpoly\Unpoly;
 
 class UnpolyTest extends TestCase
 {
-    public function testAppendsRequestMethodCookieToResponse()
+    public function test_appends_request_method_cookie_to_response()
     {
         $request = Request::create('/foo/bar', 'PUT');
 
-        $response = new Response();
+        $response = new Response;
         $response->headers->setCookie(new Cookie('foo', 'bar'));
 
-        (new Unpoly())->decorateResponse($request, $response);
+        (new Unpoly)->decorateResponse($request, $response);
 
         $this->assertResponseHasCookie($response, '_up_method', 'PUT');
     }
 
-    public function testRemovesRequestMethodCookieFromResponseWhenGetMethod()
+    public function test_removes_request_method_cookie_from_response_when_get_method()
     {
         $request = Request::create('/foo/bar', 'GET');
 
-        $response = new Response();
+        $response = new Response;
         $response->headers->setCookie(new Cookie('_up_method', 'PUT'));
 
-        (new Unpoly())->decorateResponse($request, $response);
+        (new Unpoly)->decorateResponse($request, $response);
 
         $this->assertResponseNotHasCookie($response, '_up_method', 'PUT');
     }
@@ -57,705 +57,705 @@ class UnpolyTest extends TestCase
 
     // Request inspection tests
 
-    public function testIsUnpolyRequestReturnsTrueWithVersionHeader()
+    public function test_is_unpoly_request_returns_true_with_version_header()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_VERSION' => '2.0.0']);
 
-        $this->assertTrue((new Unpoly())->isUnpolyRequest($request));
+        $this->assertTrue((new Unpoly)->isUnpolyRequest($request));
     }
 
-    public function testIsUnpolyRequestReturnsTrueWithTargetHeader()
+    public function test_is_unpoly_request_returns_true_with_target_header()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertTrue((new Unpoly())->isUnpolyRequest($request));
+        $this->assertTrue((new Unpoly)->isUnpolyRequest($request));
     }
 
-    public function testIsUnpolyRequestReturnsFalseWithoutHeaders()
+    public function test_is_unpoly_request_returns_false_without_headers()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isUnpolyRequest($request));
+        $this->assertFalse((new Unpoly)->isUnpolyRequest($request));
     }
 
-    public function testGetVersionReturnsVersion()
+    public function test_get_version_returns_version()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_VERSION' => '2.0.0']);
 
-        $this->assertEquals('2.0.0', (new Unpoly())->getVersion($request));
+        $this->assertEquals('2.0.0', (new Unpoly)->getVersion($request));
     }
 
-    public function testGetVersionReturnsNullWhenMissing()
+    public function test_get_version_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getVersion($request));
+        $this->assertNull((new Unpoly)->getVersion($request));
     }
 
-    public function testGetTargetReturnsSelector()
+    public function test_get_target_returns_selector()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertEquals('.content', (new Unpoly())->getTarget($request));
+        $this->assertEquals('.content', (new Unpoly)->getTarget($request));
     }
 
-    public function testGetTargetReturnsNullWhenMissing()
+    public function test_get_target_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getTarget($request));
+        $this->assertNull((new Unpoly)->getTarget($request));
     }
 
-    public function testGetFailTargetReturnsSelector()
+    public function test_get_fail_target_returns_selector()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_FAIL_TARGET' => '.error']);
 
-        $this->assertEquals('.error', (new Unpoly())->getFailTarget($request));
+        $this->assertEquals('.error', (new Unpoly)->getFailTarget($request));
     }
 
-    public function testGetFailTargetReturnsNullWhenMissing()
+    public function test_get_fail_target_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getFailTarget($request));
+        $this->assertNull((new Unpoly)->getFailTarget($request));
     }
 
-    public function testIsTargetRequestReturnsTrueWhenMatches()
+    public function test_is_target_request_returns_true_when_matches()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertTrue((new Unpoly())->isTargetRequest($request, '.content'));
+        $this->assertTrue((new Unpoly)->isTargetRequest($request, '.content'));
     }
 
-    public function testIsTargetRequestReturnsFalseWhenDoesNotMatch()
+    public function test_is_target_request_returns_false_when_does_not_match()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_TARGET' => '.content']);
 
-        $this->assertFalse((new Unpoly())->isTargetRequest($request, '.other'));
+        $this->assertFalse((new Unpoly)->isTargetRequest($request, '.other'));
     }
 
-    public function testIsTargetRequestReturnsFalseWhenHeaderMissing()
+    public function test_is_target_request_returns_false_when_header_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isTargetRequest($request, '.content'));
+        $this->assertFalse((new Unpoly)->isTargetRequest($request, '.content'));
     }
 
-    public function testGetModeReturnsMode()
+    public function test_get_mode_returns_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
 
-        $this->assertEquals('modal', (new Unpoly())->getMode($request));
+        $this->assertEquals('modal', (new Unpoly)->getMode($request));
     }
 
-    public function testGetModeReturnsRootByDefault()
+    public function test_get_mode_returns_root_by_default()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertEquals('root', (new Unpoly())->getMode($request));
+        $this->assertEquals('root', (new Unpoly)->getMode($request));
     }
 
-    public function testGetFailModeReturnsMode()
+    public function test_get_fail_mode_returns_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_FAIL_MODE' => 'drawer']);
 
-        $this->assertEquals('drawer', (new Unpoly())->getFailMode($request));
+        $this->assertEquals('drawer', (new Unpoly)->getFailMode($request));
     }
 
-    public function testGetFailModeReturnsNullWhenMissing()
+    public function test_get_fail_mode_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getFailMode($request));
+        $this->assertNull((new Unpoly)->getFailMode($request));
     }
 
-    public function testGetOriginModeReturnsMode()
+    public function test_get_origin_mode_returns_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_ORIGIN_MODE' => 'drawer']);
 
-        $this->assertEquals('drawer', (new Unpoly())->getOriginMode($request));
+        $this->assertEquals('drawer', (new Unpoly)->getOriginMode($request));
     }
 
-    public function testGetOriginModeReturnsNullWhenMissing()
+    public function test_get_origin_mode_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getOriginMode($request));
+        $this->assertNull((new Unpoly)->getOriginMode($request));
     }
 
-    public function testIsRootRequestReturnsTrueForRootMode()
+    public function test_is_root_request_returns_true_for_root_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
 
-        $this->assertTrue((new Unpoly())->isRootRequest($request));
+        $this->assertTrue((new Unpoly)->isRootRequest($request));
     }
 
-    public function testIsRootRequestReturnsTrueWhenModeNotSet()
+    public function test_is_root_request_returns_true_when_mode_not_set()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertTrue((new Unpoly())->isRootRequest($request));
+        $this->assertTrue((new Unpoly)->isRootRequest($request));
     }
 
-    public function testIsRootRequestReturnsFalseForOverlayMode()
+    public function test_is_root_request_returns_false_for_overlay_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
 
-        $this->assertFalse((new Unpoly())->isRootRequest($request));
+        $this->assertFalse((new Unpoly)->isRootRequest($request));
     }
 
-    public function testIsOverlayRequestReturnsTrueForModalMode()
+    public function test_is_overlay_request_returns_true_for_modal_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'modal']);
 
-        $this->assertTrue((new Unpoly())->isOverlayRequest($request));
+        $this->assertTrue((new Unpoly)->isOverlayRequest($request));
     }
 
-    public function testIsOverlayRequestReturnsTrueForDrawerMode()
+    public function test_is_overlay_request_returns_true_for_drawer_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'drawer']);
 
-        $this->assertTrue((new Unpoly())->isOverlayRequest($request));
+        $this->assertTrue((new Unpoly)->isOverlayRequest($request));
     }
 
-    public function testIsOverlayRequestReturnsFalseForRootMode()
+    public function test_is_overlay_request_returns_false_for_root_mode()
     {
         $request = Request::create('/path', 'GET', [], [], [], ['HTTP_X_UP_MODE' => 'root']);
 
-        $this->assertFalse((new Unpoly())->isOverlayRequest($request));
+        $this->assertFalse((new Unpoly)->isOverlayRequest($request));
     }
 
-    public function testIsOverlayRequestReturnsFalseWhenModeNotSet()
+    public function test_is_overlay_request_returns_false_when_mode_not_set()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isOverlayRequest($request));
+        $this->assertFalse((new Unpoly)->isOverlayRequest($request));
     }
 
-    public function testGetContextReturnsContext()
+    public function test_get_context_returns_context()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}'
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}',
         ]);
 
-        $context = (new Unpoly())->getContext($request);
+        $context = (new Unpoly)->getContext($request);
 
         $this->assertEquals(['userId' => 123, 'role' => 'admin'], $context);
     }
 
-    public function testGetContextReturnsEmptyArrayWhenMissing()
+    public function test_get_context_returns_empty_array_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertEquals([], (new Unpoly())->getContext($request));
+        $this->assertEquals([], (new Unpoly)->getContext($request));
     }
 
-    public function testGetContextReturnsEmptyArrayForInvalidJson()
+    public function test_get_context_returns_empty_array_for_invalid_json()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_CONTEXT' => 'invalid json'
+            'HTTP_X_UP_CONTEXT' => 'invalid json',
         ]);
 
-        $this->assertEquals([], (new Unpoly())->getContext($request));
+        $this->assertEquals([], (new Unpoly)->getContext($request));
     }
 
-    public function testGetFailContextReturnsContext()
+    public function test_get_fail_context_returns_context()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_FAIL_CONTEXT' => '{"error":"not_found"}'
+            'HTTP_X_UP_FAIL_CONTEXT' => '{"error":"not_found"}',
         ]);
 
-        $context = (new Unpoly())->getFailContext($request);
+        $context = (new Unpoly)->getFailContext($request);
 
         $this->assertEquals(['error' => 'not_found'], $context);
     }
 
-    public function testGetFailContextReturnsEmptyArrayWhenMissing()
+    public function test_get_fail_context_returns_empty_array_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertEquals([], (new Unpoly())->getFailContext($request));
+        $this->assertEquals([], (new Unpoly)->getFailContext($request));
     }
 
     // Cache revalidation tests (Unpoly 3.x)
 
-    public function testGetIfModifiedSinceReturnsDateTime()
+    public function test_get_if_modified_since_returns_date_time()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT',
         ]);
 
-        $result = (new Unpoly())->getIfModifiedSince($request);
+        $result = (new Unpoly)->getIfModifiedSince($request);
 
         $this->assertInstanceOf(\DateTimeInterface::class, $result);
         $this->assertEquals('2000-11-15 13:11:22', $result->format('Y-m-d H:i:s'));
     }
 
-    public function testGetIfModifiedSinceReturnsNullWhenMissing()
+    public function test_get_if_modified_since_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getIfModifiedSince($request));
+        $this->assertNull((new Unpoly)->getIfModifiedSince($request));
     }
 
-    public function testGetIfModifiedSinceReturnsNullForInvalidFormat()
+    public function test_get_if_modified_since_returns_null_for_invalid_format()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_MODIFIED_SINCE' => 'invalid date format'
+            'HTTP_IF_MODIFIED_SINCE' => 'invalid date format',
         ]);
 
-        $this->assertNull((new Unpoly())->getIfModifiedSince($request));
+        $this->assertNull((new Unpoly)->getIfModifiedSince($request));
     }
 
-    public function testHasIfModifiedSinceReturnsTrueWhenPresent()
+    public function test_has_if_modified_since_returns_true_when_present()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT',
         ]);
 
-        $this->assertTrue((new Unpoly())->hasIfModifiedSince($request));
+        $this->assertTrue((new Unpoly)->hasIfModifiedSince($request));
     }
 
-    public function testHasIfModifiedSinceReturnsFalseWhenMissing()
+    public function test_has_if_modified_since_returns_false_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->hasIfModifiedSince($request));
+        $this->assertFalse((new Unpoly)->hasIfModifiedSince($request));
     }
 
-    public function testGetIfNoneMatchReturnsETag()
+    public function test_get_if_none_match_returns_e_tag()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"'
+            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"',
         ]);
 
-        $this->assertEquals('W/"55e4d42a148795d9f25f89d4"', (new Unpoly())->getIfNoneMatch($request));
+        $this->assertEquals('W/"55e4d42a148795d9f25f89d4"', (new Unpoly)->getIfNoneMatch($request));
     }
 
-    public function testGetIfNoneMatchReturnsStrongETag()
+    public function test_get_if_none_match_returns_strong_e_tag()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => '"abc123def456"'
+            'HTTP_IF_NONE_MATCH' => '"abc123def456"',
         ]);
 
-        $this->assertEquals('"abc123def456"', (new Unpoly())->getIfNoneMatch($request));
+        $this->assertEquals('"abc123def456"', (new Unpoly)->getIfNoneMatch($request));
     }
 
-    public function testGetIfNoneMatchReturnsNullWhenMissing()
+    public function test_get_if_none_match_returns_null_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertNull((new Unpoly())->getIfNoneMatch($request));
+        $this->assertNull((new Unpoly)->getIfNoneMatch($request));
     }
 
-    public function testHasIfNoneMatchReturnsTrueWhenPresent()
+    public function test_has_if_none_match_returns_true_when_present()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"'
+            'HTTP_IF_NONE_MATCH' => 'W/"55e4d42a148795d9f25f89d4"',
         ]);
 
-        $this->assertTrue((new Unpoly())->hasIfNoneMatch($request));
+        $this->assertTrue((new Unpoly)->hasIfNoneMatch($request));
     }
 
-    public function testHasIfNoneMatchReturnsFalseWhenMissing()
+    public function test_has_if_none_match_returns_false_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->hasIfNoneMatch($request));
+        $this->assertFalse((new Unpoly)->hasIfNoneMatch($request));
     }
 
-    public function testIsValidateRequestReturnsTrueWhenHeaderPresent()
+    public function test_is_validate_request_returns_true_when_header_present()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => 'email password'
+            'HTTP_X_UP_VALIDATE' => 'email password',
         ]);
 
-        $this->assertTrue((new Unpoly())->isValidateRequest($request));
+        $this->assertTrue((new Unpoly)->isValidateRequest($request));
     }
 
-    public function testIsValidateRequestReturnsFalseWhenMissing()
+    public function test_is_validate_request_returns_false_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isValidateRequest($request));
+        $this->assertFalse((new Unpoly)->isValidateRequest($request));
     }
 
-    public function testGetValidateNamesReturnsSingleField()
+    public function test_get_validate_names_returns_single_field()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => 'email'
+            'HTTP_X_UP_VALIDATE' => 'email',
         ]);
 
-        $this->assertEquals(['email'], (new Unpoly())->getValidateNames($request));
+        $this->assertEquals(['email'], (new Unpoly)->getValidateNames($request));
     }
 
-    public function testGetValidateNamesReturnsMultipleFields()
+    public function test_get_validate_names_returns_multiple_fields()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => 'email password username'
+            'HTTP_X_UP_VALIDATE' => 'email password username',
         ]);
 
-        $this->assertEquals(['email', 'password', 'username'], (new Unpoly())->getValidateNames($request));
+        $this->assertEquals(['email', 'password', 'username'], (new Unpoly)->getValidateNames($request));
     }
 
-    public function testGetValidateNamesReturnsUnknown()
+    public function test_get_validate_names_returns_unknown()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => ':unknown'
+            'HTTP_X_UP_VALIDATE' => ':unknown',
         ]);
 
-        $this->assertEquals([':unknown'], (new Unpoly())->getValidateNames($request));
+        $this->assertEquals([':unknown'], (new Unpoly)->getValidateNames($request));
     }
 
-    public function testGetValidateNamesReturnsEmptyArrayWhenMissing()
+    public function test_get_validate_names_returns_empty_array_when_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertEquals([], (new Unpoly())->getValidateNames($request));
+        $this->assertEquals([], (new Unpoly)->getValidateNames($request));
     }
 
-    public function testGetValidateNamesReturnsEmptyArrayForEmptyString()
+    public function test_get_validate_names_returns_empty_array_for_empty_string()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => ''
+            'HTTP_X_UP_VALIDATE' => '',
         ]);
 
-        $this->assertEquals([], (new Unpoly())->getValidateNames($request));
+        $this->assertEquals([], (new Unpoly)->getValidateNames($request));
     }
 
-    public function testIsValidatingFieldRequestReturnsTrueWhenFieldIncluded()
+    public function test_is_validating_field_request_returns_true_when_field_included()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => 'email password'
+            'HTTP_X_UP_VALIDATE' => 'email password',
         ]);
 
-        $this->assertTrue((new Unpoly())->isValidatingFieldRequest($request, 'email'));
-        $this->assertTrue((new Unpoly())->isValidatingFieldRequest($request, 'password'));
+        $this->assertTrue((new Unpoly)->isValidatingFieldRequest($request, 'email'));
+        $this->assertTrue((new Unpoly)->isValidatingFieldRequest($request, 'password'));
     }
 
-    public function testIsValidatingFieldRequestReturnsFalseWhenFieldNotIncluded()
+    public function test_is_validating_field_request_returns_false_when_field_not_included()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_VALIDATE' => 'email password'
+            'HTTP_X_UP_VALIDATE' => 'email password',
         ]);
 
-        $this->assertFalse((new Unpoly())->isValidatingFieldRequest($request, 'username'));
+        $this->assertFalse((new Unpoly)->isValidatingFieldRequest($request, 'username'));
     }
 
-    public function testIsValidatingFieldRequestReturnsFalseWhenHeaderMissing()
+    public function test_is_validating_field_request_returns_false_when_header_missing()
     {
         $request = Request::create('/path', 'GET');
 
-        $this->assertFalse((new Unpoly())->isValidatingFieldRequest($request, 'email'));
+        $this->assertFalse((new Unpoly)->isValidatingFieldRequest($request, 'email'));
     }
 
     // Response header setting tests
 
-    public function testSetTitleSetsHeader()
+    public function test_set_title_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setTitle($response, 'My Page Title');
+        (new Unpoly)->setTitle($response, 'My Page Title');
 
         $this->assertEquals('"My Page Title"', $response->headers->get('X-Up-Title'));
     }
 
-    public function testSetTitleEncodesSpecialCharacters()
+    public function test_set_title_encodes_special_characters()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setTitle($response, 'Title with "quotes" and <tags>');
+        (new Unpoly)->setTitle($response, 'Title with "quotes" and <tags>');
 
         $title = $response->headers->get('X-Up-Title');
         $this->assertStringContainsString('\u0022', $title);
         $this->assertStringContainsString('\u003C', $title);
     }
 
-    public function testSetTargetSetsHeader()
+    public function test_set_target_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setTarget($response, '.content');
+        (new Unpoly)->setTarget($response, '.content');
 
         $this->assertEquals('.content', $response->headers->get('X-Up-Target'));
     }
 
-    public function testAcceptLayerWithValue()
+    public function test_accept_layer_with_value()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->acceptLayer($response, ['result' => 'success']);
+        (new Unpoly)->acceptLayer($response, ['result' => 'success']);
 
         $this->assertEquals('{"result":"success"}', $response->headers->get('X-Up-Accept-Layer'));
     }
 
-    public function testAcceptLayerWithNull()
+    public function test_accept_layer_with_null()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->acceptLayer($response);
+        (new Unpoly)->acceptLayer($response);
 
         $this->assertEquals('null', $response->headers->get('X-Up-Accept-Layer'));
     }
 
-    public function testAcceptLayerWithExplicitNull()
+    public function test_accept_layer_with_explicit_null()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->acceptLayer($response, null);
+        (new Unpoly)->acceptLayer($response, null);
 
         $this->assertEquals('null', $response->headers->get('X-Up-Accept-Layer'));
     }
 
-    public function testDismissLayerWithValue()
+    public function test_dismiss_layer_with_value()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->dismissLayer($response, ['reason' => 'cancelled']);
+        (new Unpoly)->dismissLayer($response, ['reason' => 'cancelled']);
 
         $this->assertEquals('{"reason":"cancelled"}', $response->headers->get('X-Up-Dismiss-Layer'));
     }
 
-    public function testDismissLayerWithNull()
+    public function test_dismiss_layer_with_null()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->dismissLayer($response);
+        (new Unpoly)->dismissLayer($response);
 
         $this->assertEquals('null', $response->headers->get('X-Up-Dismiss-Layer'));
     }
 
-    public function testDismissLayerWithExplicitNull()
+    public function test_dismiss_layer_with_explicit_null()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->dismissLayer($response, null);
+        (new Unpoly)->dismissLayer($response, null);
 
         $this->assertEquals('null', $response->headers->get('X-Up-Dismiss-Layer'));
     }
 
-    public function testOpenLayerWithOptions()
+    public function test_open_layer_with_options()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->openLayer($response, ['mode' => 'modal', 'target' => '.content']);
+        (new Unpoly)->openLayer($response, ['mode' => 'modal', 'target' => '.content']);
 
         $this->assertEquals('{"mode":"modal","target":".content"}', $response->headers->get('X-Up-Open-Layer'));
     }
 
-    public function testOpenLayerWithEmptyOptions()
+    public function test_open_layer_with_empty_options()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->openLayer($response);
+        (new Unpoly)->openLayer($response);
 
         $this->assertEquals('[]', $response->headers->get('X-Up-Open-Layer'));
     }
 
-    public function testSetContextSetsHeader()
+    public function test_set_context_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setContext($response, ['userId' => 123, 'role' => 'admin']);
+        (new Unpoly)->setContext($response, ['userId' => 123, 'role' => 'admin']);
 
         $this->assertEquals('{"userId":123,"role":"admin"}', $response->headers->get('X-Up-Context'));
     }
 
-    public function testSetContextWithEmptyArray()
+    public function test_set_context_with_empty_array()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setContext($response, []);
+        (new Unpoly)->setContext($response, []);
 
         $this->assertEquals('[]', $response->headers->get('X-Up-Context'));
     }
 
-    public function testUpdateContextMergesChanges()
+    public function test_update_context_merges_changes()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}'
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin"}',
         ]);
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->updateContext($request, $response, ['role' => 'superadmin', 'theme' => 'dark']);
+        (new Unpoly)->updateContext($request, $response, ['role' => 'superadmin', 'theme' => 'dark']);
 
         $context = json_decode($response->headers->get('X-Up-Context'), true);
         $this->assertEquals(['userId' => 123, 'role' => 'superadmin', 'theme' => 'dark'], $context);
     }
 
-    public function testUpdateContextRemovesNullKeys()
+    public function test_update_context_removes_null_keys()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin","theme":"dark"}'
+            'HTTP_X_UP_CONTEXT' => '{"userId":123,"role":"admin","theme":"dark"}',
         ]);
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->updateContext($request, $response, ['role' => null]);
+        (new Unpoly)->updateContext($request, $response, ['role' => null]);
 
         $context = json_decode($response->headers->get('X-Up-Context'), true);
         $this->assertEquals(['userId' => 123, 'theme' => 'dark'], $context);
     }
 
-    public function testUpdateContextWorksWithEmptyContext()
+    public function test_update_context_works_with_empty_context()
     {
         $request = Request::create('/path', 'GET');
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->updateContext($request, $response, ['newKey' => 'newValue']);
+        (new Unpoly)->updateContext($request, $response, ['newKey' => 'newValue']);
 
         $context = json_decode($response->headers->get('X-Up-Context'), true);
         $this->assertEquals(['newKey' => 'newValue'], $context);
     }
 
-    public function testEmitEventsSetsHeaderWithSingleEvent()
+    public function test_emit_events_sets_header_with_single_event()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvents($response, [
-            ['type' => 'user:updated', 'userId' => 123]
+        (new Unpoly)->emitEvents($response, [
+            ['type' => 'user:updated', 'userId' => 123],
         ]);
 
         $this->assertEquals('[{"type":"user:updated","userId":123}]', $response->headers->get('X-Up-Events'));
     }
 
-    public function testEmitEventsSetsHeaderWithMultipleEvents()
+    public function test_emit_events_sets_header_with_multiple_events()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvents($response, [
+        (new Unpoly)->emitEvents($response, [
             ['type' => 'user:updated', 'userId' => 123],
-            ['type' => 'notification:sent']
+            ['type' => 'notification:sent'],
         ]);
 
         $expected = '[{"type":"user:updated","userId":123},{"type":"notification:sent"}]';
         $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
     }
 
-    public function testEmitEventsThrowsExceptionForInvalidEvent()
+    public function test_emit_events_throws_exception_for_invalid_event()
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Each event must be an array with a "type" property');
 
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvents($response, [
-            ['data' => 'missing type']
+        (new Unpoly)->emitEvents($response, [
+            ['data' => 'missing type'],
         ]);
     }
 
-    public function testEmitEventsThrowsExceptionForNonArrayEvent()
+    public function test_emit_events_throws_exception_for_non_array_event()
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvents($response, ['not an array']);
+        (new Unpoly)->emitEvents($response, ['not an array']);
     }
 
-    public function testEmitEventWithTypeOnly()
+    public function test_emit_event_with_type_only()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvent($response, 'user:created');
+        (new Unpoly)->emitEvent($response, 'user:created');
 
         $this->assertEquals('[{"type":"user:created"}]', $response->headers->get('X-Up-Events'));
     }
 
-    public function testEmitEventWithProperties()
+    public function test_emit_event_with_properties()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvent($response, 'user:updated', ['userId' => 123, 'name' => 'John']);
+        (new Unpoly)->emitEvent($response, 'user:updated', ['userId' => 123, 'name' => 'John']);
 
         $expected = '[{"type":"user:updated","userId":123,"name":"John"}]';
         $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
     }
 
-    public function testEmitEventAppendsToExistingEvents()
+    public function test_emit_event_appends_to_existing_events()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->emitEvent($response, 'first:event');
-        (new Unpoly())->emitEvent($response, 'second:event', ['data' => 'value']);
+        (new Unpoly)->emitEvent($response, 'first:event');
+        (new Unpoly)->emitEvent($response, 'second:event', ['data' => 'value']);
 
         $expected = '[{"type":"first:event"},{"type":"second:event","data":"value"}]';
         $this->assertEquals($expected, $response->headers->get('X-Up-Events'));
     }
 
-    public function testEvictCacheSetsHeader()
+    public function test_evict_cache_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->evictCache($response, '/notes/*');
+        (new Unpoly)->evictCache($response, '/notes/*');
 
         $this->assertEquals('/notes/*', $response->headers->get('X-Up-Evict-Cache'));
     }
 
-    public function testEvictCacheWithWildcard()
+    public function test_evict_cache_with_wildcard()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->evictCache($response, '*');
+        (new Unpoly)->evictCache($response, '*');
 
         $this->assertEquals('*', $response->headers->get('X-Up-Evict-Cache'));
     }
 
-    public function testExpireCacheSetsHeader()
+    public function test_expire_cache_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->expireCache($response, '/api/*');
+        (new Unpoly)->expireCache($response, '/api/*');
 
         $this->assertEquals('/api/*', $response->headers->get('X-Up-Expire-Cache'));
     }
 
-    public function testExpireCacheWithFalse()
+    public function test_expire_cache_with_false()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->expireCache($response, false);
+        (new Unpoly)->expireCache($response, false);
 
         $this->assertEquals('false', $response->headers->get('X-Up-Expire-Cache'));
     }
 
-    public function testClearCacheSetsWildcardEviction()
+    public function test_clear_cache_sets_wildcard_eviction()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->clearCache($response);
+        (new Unpoly)->clearCache($response);
 
         $this->assertEquals('*', $response->headers->get('X-Up-Evict-Cache'));
     }
 
     // Cache revalidation response headers (Unpoly 3.x)
 
-    public function testSetLastModifiedSetsHeader()
+    public function test_set_last_modified_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
         $time = new \DateTimeImmutable('2000-11-15 13:11:22 GMT');
 
-        (new Unpoly())->setLastModified($response, $time);
+        (new Unpoly)->setLastModified($response, $time);
 
         $this->assertEquals('Wed, 15 Nov 2000 13:11:22 GMT', $response->headers->get('Last-Modified'));
     }
 
-    public function testSetLastModifiedWithDateTime()
+    public function test_set_last_modified_with_date_time()
     {
-        $response = new Response();
+        $response = new Response;
         $time = new \DateTime('2024-03-15 08:30:00 GMT');
 
-        (new Unpoly())->setLastModified($response, $time);
+        (new Unpoly)->setLastModified($response, $time);
 
         $this->assertEquals('Fri, 15 Mar 2024 08:30:00 GMT', $response->headers->get('Last-Modified'));
     }
 
-    public function testSetLastModifiedWithDifferentTimezone()
+    public function test_set_last_modified_with_different_timezone()
     {
-        $response = new Response();
+        $response = new Response;
         // Create a time in EST timezone
         $time = new \DateTimeImmutable('2024-03-15 10:00:00', new \DateTimeZone('America/New_York'));
 
-        (new Unpoly())->setLastModified($response, $time);
+        (new Unpoly)->setLastModified($response, $time);
 
         // Should be converted to GMT (10:00 EST = 15:00 GMT during DST, or 14:00 GMT without DST)
         // Let's verify the header is set correctly
@@ -765,45 +765,45 @@ class UnpolyTest extends TestCase
         $this->assertStringContainsString('GMT', $header);
     }
 
-    public function testSetETagSetsHeader()
+    public function test_set_e_tag_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setETag($response, 'abc123def456');
+        (new Unpoly)->setETag($response, 'abc123def456');
 
         $this->assertEquals('"abc123def456"', $response->headers->get('ETag'));
     }
 
-    public function testSetETagWithQuotedValue()
+    public function test_set_e_tag_with_quoted_value()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setETag($response, '"abc123def456"');
+        (new Unpoly)->setETag($response, '"abc123def456"');
 
         $this->assertEquals('"abc123def456"', $response->headers->get('ETag'));
     }
 
-    public function testSetETagWithWeakValidator()
+    public function test_set_e_tag_with_weak_validator()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setETag($response, 'W/"abc123def456"');
+        (new Unpoly)->setETag($response, 'W/"abc123def456"');
 
         $this->assertEquals('W/"abc123def456"', $response->headers->get('ETag'));
     }
 
-    public function testGenerateETagCreatesWeakETag()
+    public function test_generate_e_tag_creates_weak_e_tag()
     {
-        $etag = (new Unpoly())->generateETag('Hello World');
+        $etag = (new Unpoly)->generateETag('Hello World');
 
         $this->assertStringStartsWith('W/"', $etag);
         $this->assertStringEndsWith('"', $etag);
         $this->assertEquals('W/"b10a8db164e0754105b7a99be72e3fe5"', $etag);
     }
 
-    public function testGenerateETagCreatesStrongETag()
+    public function test_generate_e_tag_creates_strong_e_tag()
     {
-        $etag = (new Unpoly())->generateETag('Hello World', false);
+        $etag = (new Unpoly)->generateETag('Hello World', false);
 
         $this->assertStringStartsWith('"', $etag);
         $this->assertStringEndsWith('"', $etag);
@@ -811,211 +811,211 @@ class UnpolyTest extends TestCase
         $this->assertEquals('"b10a8db164e0754105b7a99be72e3fe5"', $etag);
     }
 
-    public function testGenerateETagIsDeterministic()
+    public function test_generate_e_tag_is_deterministic()
     {
         $content = 'Test content for ETag generation';
-        $etag1 = (new Unpoly())->generateETag($content);
-        $etag2 = (new Unpoly())->generateETag($content);
+        $etag1 = (new Unpoly)->generateETag($content);
+        $etag2 = (new Unpoly)->generateETag($content);
 
         $this->assertEquals($etag1, $etag2);
     }
 
-    public function testGenerateETagDifferentForDifferentContent()
+    public function test_generate_e_tag_different_for_different_content()
     {
-        $etag1 = (new Unpoly())->generateETag('Content A');
-        $etag2 = (new Unpoly())->generateETag('Content B');
+        $etag1 = (new Unpoly)->generateETag('Content A');
+        $etag2 = (new Unpoly)->generateETag('Content B');
 
         $this->assertNotEquals($etag1, $etag2);
     }
 
-    public function testNotModifiedSetsStatus304()
+    public function test_not_modified_sets_status304()
     {
         $response = new Response('Original content');
         $response->setStatusCode(200);
 
-        (new Unpoly())->notModified($response);
+        (new Unpoly)->notModified($response);
 
         $this->assertEquals(304, $response->getStatusCode());
     }
 
-    public function testNotModifiedClearsBody()
+    public function test_not_modified_clears_body()
     {
         $response = new Response('Original content');
 
-        (new Unpoly())->notModified($response);
+        (new Unpoly)->notModified($response);
 
         $this->assertEquals('', $response->getContent());
     }
 
-    public function testNotModifiedPreservesHeaders()
+    public function test_not_modified_preserves_headers()
     {
         $response = new Response('Original content');
         $response->headers->set('ETag', 'W/"abc123"');
         $response->headers->set('Last-Modified', 'Wed, 15 Nov 2000 13:11:22 GMT');
 
-        (new Unpoly())->notModified($response);
+        (new Unpoly)->notModified($response);
 
         $this->assertEquals('W/"abc123"', $response->headers->get('ETag'));
         $this->assertEquals('Wed, 15 Nov 2000 13:11:22 GMT', $response->headers->get('Last-Modified'));
     }
 
-    public function testIsNotModifiedReturnsTrueFor304()
+    public function test_is_not_modified_returns_true_for304()
     {
-        $response = new Response();
+        $response = new Response;
         $response->setStatusCode(304);
 
-        $this->assertTrue((new Unpoly())->isNotModified($response));
+        $this->assertTrue((new Unpoly)->isNotModified($response));
     }
 
-    public function testIsNotModifiedReturnsFalseFor200()
+    public function test_is_not_modified_returns_false_for200()
     {
-        $response = new Response();
+        $response = new Response;
         $response->setStatusCode(200);
 
-        $this->assertFalse((new Unpoly())->isNotModified($response));
+        $this->assertFalse((new Unpoly)->isNotModified($response));
     }
 
-    public function testShouldRevalidateReturnsFalseWhenETagMatches()
+    public function test_should_revalidate_returns_false_when_e_tag_matches()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => 'W/"abc123"'
+            'HTTP_IF_NONE_MATCH' => 'W/"abc123"',
         ]);
 
-        $result = (new Unpoly())->shouldRevalidate($request, null, 'W/"abc123"');
+        $result = (new Unpoly)->shouldRevalidate($request, null, 'W/"abc123"');
 
         $this->assertFalse($result);
     }
 
-    public function testShouldRevalidateReturnsTrueWhenETagDiffers()
+    public function test_should_revalidate_returns_true_when_e_tag_differs()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => 'W/"abc123"'
+            'HTTP_IF_NONE_MATCH' => 'W/"abc123"',
         ]);
 
-        $result = (new Unpoly())->shouldRevalidate($request, null, 'W/"xyz789"');
+        $result = (new Unpoly)->shouldRevalidate($request, null, 'W/"xyz789"');
 
         $this->assertTrue($result);
     }
 
-    public function testShouldRevalidateNormalizesETag()
+    public function test_should_revalidate_normalizes_e_tag()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_NONE_MATCH' => '"abc123"'
+            'HTTP_IF_NONE_MATCH' => '"abc123"',
         ]);
 
         // ETag without quotes should be normalized for comparison
-        $result = (new Unpoly())->shouldRevalidate($request, null, 'abc123');
+        $result = (new Unpoly)->shouldRevalidate($request, null, 'abc123');
 
         $this->assertFalse($result);
     }
 
-    public function testShouldRevalidateReturnsFalseWhenNotModifiedSince()
+    public function test_should_revalidate_returns_false_when_not_modified_since()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT',
         ]);
 
         $lastModified = new \DateTimeImmutable('2000-11-15 13:11:22 GMT');
 
-        $result = (new Unpoly())->shouldRevalidate($request, $lastModified);
+        $result = (new Unpoly)->shouldRevalidate($request, $lastModified);
 
         $this->assertFalse($result);
     }
 
-    public function testShouldRevalidateReturnsTrueWhenModifiedSince()
+    public function test_should_revalidate_returns_true_when_modified_since()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
-            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT',
         ]);
 
         $lastModified = new \DateTimeImmutable('2000-11-15 14:00:00 GMT');
 
-        $result = (new Unpoly())->shouldRevalidate($request, $lastModified);
+        $result = (new Unpoly)->shouldRevalidate($request, $lastModified);
 
         $this->assertTrue($result);
     }
 
-    public function testShouldRevalidateETagTakesPrecedence()
+    public function test_should_revalidate_e_tag_takes_precedence()
     {
         $request = Request::create('/path', 'GET', [], [], [], [
             'HTTP_IF_NONE_MATCH' => 'W/"abc123"',
-            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT'
+            'HTTP_IF_MODIFIED_SINCE' => 'Wed, 15 Nov 2000 13:11:22 GMT',
         ]);
 
         // ETag matches, so should return false even though lastModified is later
         $lastModified = new \DateTimeImmutable('2000-11-15 14:00:00 GMT');
-        $result = (new Unpoly())->shouldRevalidate($request, $lastModified, 'W/"abc123"');
+        $result = (new Unpoly)->shouldRevalidate($request, $lastModified, 'W/"abc123"');
 
         $this->assertFalse($result);
     }
 
-    public function testShouldRevalidateReturnsTrueWhenNoConditionalHeaders()
+    public function test_should_revalidate_returns_true_when_no_conditional_headers()
     {
         $request = Request::create('/path', 'GET');
 
-        $result = (new Unpoly())->shouldRevalidate($request);
+        $result = (new Unpoly)->shouldRevalidate($request);
 
         $this->assertTrue($result);
     }
 
     // Vary header management (Unpoly 3.x)
 
-    public function testAddVarySetsHeader()
+    public function test_add_vary_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
 
         $this->assertEquals('X-Up-Target', $response->headers->get('Vary'));
     }
 
-    public function testAddVaryAppendsToExistingVary()
+    public function test_add_vary_appends_to_existing_vary()
     {
-        $response = new Response();
+        $response = new Response;
         $response->headers->set('Vary', 'Accept');
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
 
         $this->assertEquals('Accept, X-Up-Target', $response->headers->get('Vary'));
     }
 
-    public function testAddVaryDoesNotDuplicate()
+    public function test_add_vary_does_not_duplicate()
     {
-        $response = new Response();
+        $response = new Response;
         $response->headers->set('Vary', 'X-Up-Target');
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
 
         $this->assertEquals('X-Up-Target', $response->headers->get('Vary'));
     }
 
-    public function testAddVaryMultipleHeaders()
+    public function test_add_vary_multiple_headers()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
-        (new Unpoly())->addVary($response, 'X-Up-Mode');
-        (new Unpoly())->addVary($response, 'X-Up-Context');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Mode');
+        (new Unpoly)->addVary($response, 'X-Up-Context');
 
         $this->assertEquals('X-Up-Target, X-Up-Mode, X-Up-Context', $response->headers->get('Vary'));
     }
 
-    public function testAddVaryHandlesExistingCommaSeparatedList()
+    public function test_add_vary_handles_existing_comma_separated_list()
     {
-        $response = new Response();
+        $response = new Response;
         $response->headers->set('Vary', 'Accept, Accept-Encoding');
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
 
         $this->assertEquals('Accept, Accept-Encoding, X-Up-Target', $response->headers->get('Vary'));
     }
 
-    public function testAddVaryTrimsWhitespace()
+    public function test_add_vary_trims_whitespace()
     {
-        $response = new Response();
+        $response = new Response;
         $response->headers->set('Vary', ' Accept , Accept-Encoding ');
 
-        (new Unpoly())->addVary($response, 'X-Up-Target');
+        (new Unpoly)->addVary($response, 'X-Up-Target');
 
         $vary = $response->headers->get('Vary');
         $this->assertEquals('Accept, Accept-Encoding, X-Up-Target', $vary);
@@ -1023,48 +1023,48 @@ class UnpolyTest extends TestCase
 
     // Location and Method response headers
 
-    public function testSetLocationSetsHeader()
+    public function test_set_location_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setLocation($response, '/users/123');
+        (new Unpoly)->setLocation($response, '/users/123');
 
         $this->assertEquals('/users/123', $response->headers->get('X-Up-Location'));
     }
 
-    public function testSetLocationWithFullUrl()
+    public function test_set_location_with_full_url()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setLocation($response, 'https://example.com/users/123');
+        (new Unpoly)->setLocation($response, 'https://example.com/users/123');
 
         $this->assertEquals('https://example.com/users/123', $response->headers->get('X-Up-Location'));
     }
 
-    public function testSetMethodSetsHeader()
+    public function test_set_method_sets_header()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setMethod($response, 'GET');
+        (new Unpoly)->setMethod($response, 'GET');
 
         $this->assertEquals('GET', $response->headers->get('X-Up-Method'));
     }
 
-    public function testSetMethodUppercasesValue()
+    public function test_set_method_uppercases_value()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setMethod($response, 'post');
+        (new Unpoly)->setMethod($response, 'post');
 
         $this->assertEquals('POST', $response->headers->get('X-Up-Method'));
     }
 
-    public function testSetLocationAndMethodTogether()
+    public function test_set_location_and_method_together()
     {
-        $response = new Response();
+        $response = new Response;
 
-        (new Unpoly())->setLocation($response, '/users/123');
-        (new Unpoly())->setMethod($response, 'GET');
+        (new Unpoly)->setLocation($response, '/users/123');
+        (new Unpoly)->setMethod($response, 'GET');
 
         $this->assertEquals('/users/123', $response->headers->get('X-Up-Location'));
         $this->assertEquals('GET', $response->headers->get('X-Up-Method'));

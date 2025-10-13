@@ -27,6 +27,7 @@
         "symfony/http-kernel": "^5.4|^6.0|^7.0"
     },
     "require-dev": {
+        "laravel/pint": "^1.25",
         "phpunit/phpunit": "^9.5"
     },
     "scripts": {

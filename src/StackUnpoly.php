@@ -20,9 +20,6 @@ class StackUnpoly implements HttpKernelInterface
 
     /**
      * Constructor.
-     *
-     * @param  \Symfony\Component\HttpKernel\HttpKernelInterface  $app
-     * @param  \Webstronauts\Unpoly\Unpoly  $unpoly
      */
     public function __construct(HttpKernelInterface $app, Unpoly $unpoly)
     {
@@ -37,7 +34,7 @@ class StackUnpoly implements HttpKernelInterface
     {
         $response = $this->app->handle($request, $type, $catch);
 
-        if (self::MAIN_REQUEST === $type) {
+        if ($type === self::MAIN_REQUEST) {
             $this->unpoly->decorateResponse($request, $response);
         }
 
